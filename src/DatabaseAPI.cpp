@@ -1,9 +1,6 @@
 // Importing a Header File
 #include <Database/DatabaseAPI.hpp>
 
-// using namespace std;
-// using namespace DB;
-
 int DB::Database::CreateTable(const std::string &NameTable, std::map<std::string, std::string> Columns)
 {
     /* The above code is creating a SQL command to create a table in a database if it does not already
@@ -53,21 +50,22 @@ int DB::Database::InsertValuesToTable(const std::string &NameTable, std::map<std
         throw std::runtime_error("Error in INSERT command");
     return 0;
 }
-int DB::Database::ExistNameAppInTable(const std::string &NameTable, const std::string &NameApp)
+bool DB::Database::ExistValueInTable(const std::string &NameTable,const std::string &NameColumn,const std::string &Value)
 {
     // Create SQL statement
-    SQL_COMMAND = "SELECT Name FROM " + NameTable + " WHERE Name='" + NameApp + "'";
+    SQL_COMMAND = "SELECT * FROM " + NameTable + " WHERE " + NameColumn + "='" + Value + "'";
     // Execute SQL statement
     int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), SQL_COMMAND.length(), &statement, nullptr);
     // if result of execute sql statement != SQLITE_OK, that send error
-    if (RESULT_SQL != SQLITE_OK)
-    {
-        return -1;
+    if (sqlite3_step(statement) == SQLITE_ROW) {
+        sqlite3_finalize(statement);
+        return true;
     }
     // Free the statement when done.
     sqlite3_finalize(statement);
-    return 0;
+    return false;
 }
+
 std::string DB::Database::GetValueFromDB(const std::string &NameTable, const std::string &NameApp, const std::string &NameColumn)
 {
     std::string AnswerDB;
