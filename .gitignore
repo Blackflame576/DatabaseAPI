@@ -31,3 +31,7 @@
 *.out
 *.app
 build/
+.vscode/
+.idea/
+.vs/
+build_linux/
