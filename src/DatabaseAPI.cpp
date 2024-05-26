@@ -1,7 +1,7 @@
 // Importing a Header File
 #include <Database/DatabaseAPI.hpp>
 
-int DB::Database::CreateTable(const std::string &NameTable, std::map<std::string, std::string> Columns)
+int DB::Database::CreateTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Columns)
 {
     /* The above code is creating a SQL command to create a table in a database if it does not already
     exist. It is using the variables "NameTable" and "Columns" to dynamically generate the table
@@ -24,7 +24,7 @@ int DB::Database::CreateTable(const std::string &NameTable, std::map<std::string
         throw std::runtime_error("Error in CREATE TABLE command");
     return 0;
 }
-int DB::Database::InsertValuesToTable(const std::string &NameTable, std::map<std::string, std::string> Fields)
+int DB::Database::InsertValuesToTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Fields)
 {
     /* The bellow code is constructing an SQL INSERT command. It takes a table name (stored in the
     variable NameTable) and a map of fields (stored in the variable Fields) as input. */
@@ -138,9 +138,9 @@ std::string DB::Database::GetApplicationURL(const std::string &NameTable, const 
     return AnswerDB;
 }
 
-std::map<std::string, std::string> DB::Database::GetAllValuesFromDB(const std::string &NameTable, const std::string &NameColumn)
+std::unordered_map<std::string, std::string> DB::Database::GetAllValuesFromDB(const std::string &NameTable, const std::string &NameColumn)
 {
-    std::map<std::string, std::string> WriteMap;
+    std::unordered_map<std::string, std::string> WriteMap;
 
     // Create SQL statement
     SQL_COMMAND = "SELECT Name," + NameColumn + " FROM " + NameTable;
@@ -167,9 +167,9 @@ std::map<std::string, std::string> DB::Database::GetAllValuesFromDB(const std::s
     return WriteMap;
 }
 
-std::map<std::string, std::string> DB::Database::GetAllVersionsFromDB(const std::string &NameTable, const std::string &Architecture)
+std::unordered_map<std::string, std::string> DB::Database::GetAllVersionsFromDB(const std::string &NameTable, const std::string &Architecture)
 {
-    std::map<std::string, std::string> WriteMap;
+    std::unordered_map<std::string, std::string> WriteMap;
     // Create SQL statement
     // SQL_COMMAND = "SELECT Channel,Version FROM '" + NameTable + "' WHERE Architecture='" + Architecture + "'";
     SQL_COMMAND = "SELECT Channel,Version FROM '" + NameTable + "' WHERE Architecture='" + Architecture + "'";
@@ -228,9 +228,9 @@ std::string DB::Database::GetLatestVersion(const std::string &NameTable, const s
     }
 }
 
-std::map<std::string, std::string> DB::Database::GetDevPackFromDB(const std::string &NameTable, const std::string &NameColumn)
+std::unordered_map<std::string, std::string> DB::Database::GetDevPackFromDB(const std::string &NameTable, const std::string &NameColumn)
 {
-    std::map<std::string, std::string> WriteMap;
+    std::unordered_map<std::string, std::string> WriteMap;
     // Create SQL statement
     SQL_COMMAND = "SELECT Number," + NameColumn + " FROM " + NameTable;
     // SQL_COMMAND = "SELECT Number,Language FROM DevelopmentPacks";
