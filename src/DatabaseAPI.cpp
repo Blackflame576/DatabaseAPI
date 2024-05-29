@@ -1,8 +1,13 @@
 // Importing a Header File
 #include <Database/DatabaseAPI.hpp>
 
-int DB::Database::CreateTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Columns)
+int DB::Database::CreateTable(const std::string &NameTable, auto Columns)
 {
+    std::string SQL_COMMAND;
+    if (typeid(Columns) != typeid(std::unordered_map<std::string, std::string>) || typeid(Columns) != typeid(std::map<std::string, std::string>))
+    {
+        throw std::logic_error("Columns must be of type std::unordered_map<std::string, std::string> or std::map<std::string, std::string>");
+    }
     /* The above code is creating a SQL command to create a table in a database if it does not already
     exist. It is using the variables "NameTable" and "Columns" to dynamically generate the table
     name and column names and types. The code iterates through the "Columns" map and appends each
@@ -24,8 +29,13 @@ int DB::Database::CreateTable(const std::string &NameTable, std::unordered_map<s
         throw std::runtime_error("Error in CREATE TABLE command");
     return 0;
 }
-int DB::Database::InsertValuesToTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Fields)
+int DB::Database::InsertValuesToTable(const std::string &NameTable, auto Fields)
 {
+    std::string SQL_COMMAND;
+    if (typeid(Fields) != typeid(std::unordered_map<std::string, std::string>) || typeid(Fields) != typeid(std::map<std::string, std::string>))
+    {
+        throw std::logic_error("Columns must be of type std::unordered_map<std::string, std::string> or std::map<std::string, std::string>");
+    }
     /* The bellow code is constructing an SQL INSERT command. It takes a table name (stored in the
     variable NameTable) and a map of fields (stored in the variable Fields) as input. */
     SQL_COMMAND = "INSERT INTO 'main'.'" + NameTable + "' ";
@@ -44,7 +54,7 @@ int DB::Database::InsertValuesToTable(const std::string &NameTable, std::unorder
     }
     Columns += ")";
     Values += ")";
-    SQL_COMMAND = SQL_COMMAND + Columns + " VALUES " + Values + ";";
+    SQL_COMMAND += Columns + " VALUES " + Values + ";";
     int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
     if (RESULT_SQL != SQLITE_OK)
         throw std::runtime_error("Error in INSERT command");
@@ -52,6 +62,7 @@ int DB::Database::InsertValuesToTable(const std::string &NameTable, std::unorder
 }
 bool DB::Database::ExistValueInTable(const std::string &NameTable,const std::string &NameColumn,const std::string &Value)
 {
+    std::string SQL_COMMAND;
     // Create SQL statement
     SQL_COMMAND = "SELECT * FROM " + NameTable + " WHERE " + NameColumn + "='" + Value + "'";
     // Execute SQL statement
@@ -69,6 +80,7 @@ bool DB::Database::ExistValueInTable(const std::string &NameTable,const std::str
 std::string DB::Database::GetValueFromDB(const std::string &NameTable, const std::string &NameApp, const std::string &NameColumn)
 {
     std::string AnswerDB;
+    std::string SQL_COMMAND;
     // Create SQL statement
     SQL_COMMAND = "SELECT " + NameColumn + " FROM " + NameTable + " WHERE Name='" + NameApp + "'";
     // Execute SQL statement
@@ -93,6 +105,7 @@ std::string DB::Database::GetValueFromDB(const std::string &NameTable, const std
 std::string DB::Database::GetVersionFromDB(const std::string &NameTable, const std::string &Channel, const std::string &NameColumn, const std::string &Architecture)
 {
     std::string AnswerDB;
+    std::string SQL_COMMAND;
     // Create SQL statement
     SQL_COMMAND = "SELECT " + NameColumn + " FROM " + NameTable + " WHERE Channel='" + Channel + "' AND Architecture='" + Architecture + "'";
     // Execute SQL statement
@@ -117,6 +130,7 @@ std::string DB::Database::GetVersionFromDB(const std::string &NameTable, const s
 std::string DB::Database::GetApplicationURL(const std::string &NameTable, const std::string &Channel, const std::string &NameColumn, const std::string &Architecture, const std::string &Version)
 {
     std::string AnswerDB;
+    std::string SQL_COMMAND;
     // Create SQL statement
     SQL_COMMAND = "SELECT " + NameColumn + " FROM " + NameTable + " WHERE Channel='" + Channel + "' AND Architecture='" + Architecture + "' AND Version='" + Version + "'";
     // Execute SQL statement
@@ -141,7 +155,8 @@ std::string DB::Database::GetApplicationURL(const std::string &NameTable, const 
 std::unordered_map<std::string, std::string> DB::Database::GetAllValuesFromDB(const std::string &NameTable, const std::string &NameColumn)
 {
     std::unordered_map<std::string, std::string> WriteMap;
-
+    std::string SQL_COMMAND;
+    
     // Create SQL statement
     SQL_COMMAND = "SELECT Name," + NameColumn + " FROM " + NameTable;
     // Execute SQL statement
@@ -170,6 +185,8 @@ std::unordered_map<std::string, std::string> DB::Database::GetAllValuesFromDB(co
 std::unordered_map<std::string, std::string> DB::Database::GetAllVersionsFromDB(const std::string &NameTable, const std::string &Architecture)
 {
     std::unordered_map<std::string, std::string> WriteMap;
+    std::string SQL_COMMAND;
+
     // Create SQL statement
     // SQL_COMMAND = "SELECT Channel,Version FROM '" + NameTable + "' WHERE Architecture='" + Architecture + "'";
     SQL_COMMAND = "SELECT Channel,Version FROM '" + NameTable + "' WHERE Architecture='" + Architecture + "'";
@@ -200,6 +217,8 @@ std::string DB::Database::GetLatestVersion(const std::string &NameTable, const s
 {
     std::string AnswerDB;
     int tableCount = GetArraySize(NameTable, NameColumn);
+    std::string SQL_COMMAND;
+
     if (tableCount > 0)
     {
         // Create SQL statement
@@ -231,6 +250,7 @@ std::string DB::Database::GetLatestVersion(const std::string &NameTable, const s
 std::unordered_map<std::string, std::string> DB::Database::GetDevPackFromDB(const std::string &NameTable, const std::string &NameColumn)
 {
     std::unordered_map<std::string, std::string> WriteMap;
+    std::string SQL_COMMAND;
     // Create SQL statement
     SQL_COMMAND = "SELECT Number," + NameColumn + " FROM " + NameTable;
     // SQL_COMMAND = "SELECT Number,Language FROM DevelopmentPacks";
@@ -261,6 +281,7 @@ std::unordered_map<std::string, std::string> DB::Database::GetDevPackFromDB(cons
 
 int DB::Database::GetArraySize(const std::string &NameTable, const std::string &NameColumn)
 {
+    std::string SQL_COMMAND;
     // Create SQL statement
     SQL_COMMAND = "SELECT count(" + NameColumn + ") " + " FROM " + NameTable;
     // SQL_COMMAND = "SELECT count(Windows) FROM Applications";
@@ -284,6 +305,7 @@ int DB::Database::GetArraySize(const std::string &NameTable, const std::string &
 
 int DB::Database::InsertApplicationsToTable(const std::string &NameTable, const std::string &NameApp, const std::string &WindowsCommand, const std::string &macOSCommand, const std::string &LinuxCommand)
 {
+    std::string SQL_COMMAND;
     /* The bellow code is constructing an SQL INSERT command to insert data into a table. The command is
     dynamically generated based on the values of variables `NameTable`, `NameApp`, `WindowsCommand`,
     `macOSCommand`, and `LinuxCommand`. The command will insert a new row into the specified table
@@ -297,6 +319,7 @@ int DB::Database::InsertApplicationsToTable(const std::string &NameTable, const 
 
 int DB::Database::RemoveApplicationFromTable(const std::string &NameTable, const std::string &NameApp)
 {
+    std::string SQL_COMMAND;
     /* The bellow code is constructing a SQL command to delete a row from a table in a database. The
     table name is stored in the variable "NameTable" and the row to be deleted is specified by the
     value of the variable "NameApp". The constructed SQL command will delete the row where the
@@ -386,9 +409,46 @@ int DB::Database::InsertLogInformationToTable(const std::string &NameTable, cons
     into a table named 'NameTable' in the 'main' database. The data being inserted includes values
     for the columns 'Architecture', 'Channel', 'LogText', 'OS_NAME', and 'FunctionName'. The values
     for these columns are being passed as variables in the code. */
+    std::string SQL_COMMAND;
     SQL_COMMAND = "INSERT INTO 'main'.'" + NameTable + "' ('Architecture', 'Channel', 'LogText', 'OS_NAME','FunctionName') VALUES ('" + Architecture + "', '" + Channel + "', '" + LogText + "', '" + OS_NAME + "', '" + FunctionName + "');";
     int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
     if (RESULT_SQL != SQLITE_OK)
         throw std::runtime_error("Error in INSERT command");
+    return 0;
+}
+
+int DB::Database::UpdateValuesInTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Values, std::unordered_map<std::string, std::string> Parameters)
+{
+    std::string SQL_COMMAND;
+    SQL_COMMAND = "UPDATE " + NameTable + " SET ";
+    for (int i = 1;const auto &element:Values)
+    {
+        SQL_COMMAND += element.first + "='" + element.second + "'";
+        if (i != Values.size())
+        {
+            SQL_COMMAND += ",";
+        }
+        i++;
+    }
+
+    if (Parameters.size() != 0 && (typeid(Parameters) == typeid(std::unordered_map<std::string, std::string>) || typeid(Parameters) == typeid(std::map<std::string, std::string>)))
+    {
+        SQL_COMMAND += " WHERE ";
+        for (int i = 1;const auto &element:Parameters)
+        {
+            SQL_COMMAND += element.first + "='"  + element.second  +  "'";
+            if (i != Parameters.size())
+            {
+                SQL_COMMAND += " AND ";
+            }
+            i++;
+        }
+    }
+    SQL_COMMAND += ";";
+    std::cout << SQL_COMMAND << std::endl;
+    // Version=\"0.3\" WHERE Version=\"0.2\" AND Channel=\"stable";
+    int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
+    if (RESULT_SQL != SQLITE_OK)
+        throw std::runtime_error("Error in UPDATE command");
     return 0;
 }

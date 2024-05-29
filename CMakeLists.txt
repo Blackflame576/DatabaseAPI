@@ -23,3 +23,8 @@ endif()
 set(LIBRARIES SQLite)
 
 target_link_libraries(DatabaseAPI ${LIBRARIES})
+
+# Build examples
+add_executable(UpdateValues_example ${CMAKE_CURRENT_SOURCE_DIR}/example/UpdateValues.cpp)
+target_link_libraries(UpdateValues_example DatabaseAPI)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/example/DB DESTINATION ${CMAKE_BINARY_DIR}/)
