@@ -25,8 +25,11 @@ int DB::Database::CreateTable(const std::string &NameTable, std::unordered_map<s
     }
     SQL_COMMAND += ")";
     int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
-    if (RESULT_SQL != SQLITE_OK)
-        throw std::runtime_error("Error in CREATE TABLE command");
+    if (RESULT_SQL!= SQLITE_OK)
+    {
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in preparing CREATE TABLE command: " + errorMessage);
+    }
     return 0;
 }
 int DB::Database::InsertValuesToTable(const std::string &NameTable, std::unordered_map<std::string, std::string>  Fields)
@@ -55,11 +58,11 @@ int DB::Database::InsertValuesToTable(const std::string &NameTable, std::unorder
     Columns += ")";
     Values += ")";
     SQL_COMMAND += Columns + " VALUES " + Values + ";";
-    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), -1, &statement, NULL);
+    int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
     if (RESULT_SQL!= SQLITE_OK)
     {
         std::string errorMessage = sqlite3_errmsg(db);
-        throw std::runtime_error("Error in preparing UPDATE command: " + errorMessage);
+        throw std::runtime_error("Error in preparing INSERT command: " + errorMessage);
     }
     return 0;
 }
@@ -449,8 +452,8 @@ int DB::Database::UpdateValuesInTable(const std::string &NameTable, std::unorder
     }
     SQL_COMMAND += ";";
     std::cout << SQL_COMMAND << std::endl;
-    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), -1, &statement, NULL);
-    if (RESULT_SQL != SQLITE_OK)
+    int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
+    if (RESULT_SQL!= SQLITE_OK)
     {
         std::string errorMessage = sqlite3_errmsg(db);
         throw std::runtime_error("Error in preparing UPDATE command: " + errorMessage);
