@@ -446,7 +446,6 @@ int DB::Database::UpdateValuesInTable(const std::string &NameTable, std::unorder
     }
     SQL_COMMAND += ";";
     std::cout << SQL_COMMAND << std::endl;
-    // Version=\"0.3\" WHERE Version=\"0.2\" AND Channel=\"stable";
     int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
     if (RESULT_SQL != SQLITE_OK)
         throw std::runtime_error("Error in UPDATE command");
