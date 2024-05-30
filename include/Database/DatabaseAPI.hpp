@@ -22,7 +22,7 @@ namespace DB
         std::string DefaultDatabesePath = std::filesystem::current_path().generic_string() + "/DB/AppInstaller.db";
         void open(std::string *DB_Path = nullptr)
         {
-            RESULT_SQL = sqlite3_open(DB_Path != nullptr ? DB_Path->c_str() : DefaultDatabesePath.c_str(), &db);
+            RESULT_SQL = sqlite3_open_v2(DB_Path != nullptr ? DB_Path->c_str() : DefaultDatabesePath.c_str(), &db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
 
             // if result of open database != SQLITE_OK, that send error
             if (RESULT_SQL != SQLITE_OK)
