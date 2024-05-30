@@ -35,7 +35,7 @@ namespace DB
         // Database();
         ~Database()
         {
-            if (isOpen) sqlite3_close(db);
+            close();
         }
         void close()
         {
