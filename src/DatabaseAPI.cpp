@@ -29,13 +29,13 @@ int DB::Database::CreateTable(const std::string &NameTable, auto Columns)
         throw std::runtime_error("Error in CREATE TABLE command");
     return 0;
 }
-int DB::Database::InsertValuesToTable(const std::string &NameTable, std::unordered_map<std::string, std::string>  Fields)
+int DB::Database::InsertValuesToTable(const std::string &NameTable, auto  Fields)
 {
     std::string SQL_COMMAND;
-    // if (typeid(Fields) != typeid(std::unordered_map<std::string, std::string>) || typeid(Fields) != typeid(std::map<std::string, std::string>))
-    // {
-    //     throw std::logic_error("Columns must be of type std::unordered_map<std::string, std::string> or std::map<std::string, std::string>");
-    // }
+    if (typeid(Fields) != typeid(std::unordered_map<std::string, std::string>) || typeid(Fields) != typeid(std::map<std::string, std::string>))
+    {
+        throw std::logic_error("Columns must be of type std::unordered_map<std::string, std::string> or std::map<std::string, std::string>");
+    }
     /* The bellow code is constructing an SQL INSERT command. It takes a table name (stored in the
     variable NameTable) and a map of fields (stored in the variable Fields) as input. */
     SQL_COMMAND = "INSERT INTO 'main'.'" + NameTable + "' ";
@@ -55,9 +55,12 @@ int DB::Database::InsertValuesToTable(const std::string &NameTable, std::unorder
     Columns += ")";
     Values += ")";
     SQL_COMMAND += Columns + " VALUES " + Values + ";";
-    int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
-    if (RESULT_SQL != SQLITE_OK)
-        throw std::runtime_error("Error in INSERT command");
+    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), -1, &statement, NULL);
+    if (RESULT_SQL!= SQLITE_OK)
+    {
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in preparing UPDATE command: " + errorMessage);
+    }
     return 0;
 }
 bool DB::Database::ExistValueInTable(const std::string &NameTable,const std::string &NameColumn,const std::string &Value)
@@ -421,62 +424,36 @@ int DB::Database::UpdateValuesInTable(const std::string &NameTable, std::unorder
 {
     std::string SQL_COMMAND;
     SQL_COMMAND = "UPDATE " + NameTable + " SET ";
-    int count = 1;
-    for (const auto &element : Values)
+    for (int i = 1;const auto &element:Values)
     {
-        SQL_COMMAND += element.first + "=? ";
-        if (count != Values.size())
+        SQL_COMMAND += element.first + "='" + element.second + "'";
+        if (i != Values.size())
         {
             SQL_COMMAND += ",";
         }
-        count++;
+        i++;
     }
 
-    if (Parameters.size() != 0)
+    if (Parameters.size() != 0 && (typeid(Parameters) == typeid(std::unordered_map<std::string, std::string>) || typeid(Parameters) == typeid(std::map<std::string, std::string>)))
     {
         SQL_COMMAND += " WHERE ";
-        count = 1;
-        for (const auto &element : Parameters)
+        for (int i = 1;const auto &element:Parameters)
         {
-            SQL_COMMAND += element.first + "=? ";
-            if (count != Parameters.size())
+            SQL_COMMAND += element.first + "='"  + element.second  +  "'";
+            if (i != Parameters.size())
             {
                 SQL_COMMAND += " AND ";
             }
-            count++;
+            i++;
         }
     }
     SQL_COMMAND += ";";
-
-    sqlite3_stmt *stmt;
-    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), -1, &stmt, NULL);
+    std::cout << SQL_COMMAND << std::endl;
+    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), -1, &statement, NULL);
     if (RESULT_SQL != SQLITE_OK)
-        throw std::runtime_error("Error in preparing UPDATE command");
-
-    count = 1;
-    for (const auto &element : Values)
     {
-        RESULT_SQL = sqlite3_bind_text(stmt, count, element.second.c_str(), -1, SQLITE_STATIC);
-        if (RESULT_SQL != SQLITE_OK)
-            throw std::runtime_error("Error in binding values");
-        count++;
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in preparing UPDATE command: " + errorMessage);
     }
-
-    if (Parameters.size() != 0)
-    {
-        for (const auto &element : Parameters)
-        {
-            RESULT_SQL = sqlite3_bind_text(stmt, count, element.second.c_str(), -1, SQLITE_STATIC);
-            if (RESULT_SQL != SQLITE_OK)
-                throw std::runtime_error("Error in binding parameters");
-            count++;
-        }
-    }
-
-    RESULT_SQL = sqlite3_step(stmt);
-    if (RESULT_SQL != SQLITE_DONE)
-        throw std::runtime_error("Error in executing UPDATE command");
-
-    sqlite3_finalize(stmt);
     return 0;
 }

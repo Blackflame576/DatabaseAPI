@@ -37,7 +37,7 @@ namespace DB
         }
         int CreateTable(const std::string &NameTable, auto Columns);
 
-        int InsertValuesToTable(const std::string &NameTable, std::unordered_map<std::string, std::string>  Fields);
+        int InsertValuesToTable(const std::string &NameTable, auto  Fields);
 
         bool ExistValueInTable(const std::string &NameTable,const std::string &NameColumn,const std::string &Value);
 
