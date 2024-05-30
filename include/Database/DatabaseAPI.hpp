@@ -35,9 +35,9 @@ namespace DB
         {
             sqlite3_close(db);
         }
-        int CreateTable(const std::string &NameTable, auto Columns);
+        int CreateTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Columns);
 
-        int InsertValuesToTable(const std::string &NameTable, auto  Fields);
+        int InsertValuesToTable(const std::string &NameTable, std::unordered_map<std::string, std::string>  Fields);
 
         bool ExistValueInTable(const std::string &NameTable,const std::string &NameColumn,const std::string &Value);
 

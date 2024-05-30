@@ -1,13 +1,13 @@
 // Importing a Header File
 #include <Database/DatabaseAPI.hpp>
 
-int DB::Database::CreateTable(const std::string &NameTable, auto Columns)
+int DB::Database::CreateTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Columns)
 {
     std::string SQL_COMMAND;
-    if (typeid(Columns) != typeid(std::unordered_map<std::string, std::string>) || typeid(Columns) != typeid(std::map<std::string, std::string>))
-    {
-        throw std::logic_error("Columns must be of type std::unordered_map<std::string, std::string> or std::map<std::string, std::string>");
-    }
+    // if (typeid(Columns) != typeid(std::unordered_map<std::string, std::string>) || typeid(Columns) != typeid(std::map<std::string, std::string>))
+    // {
+    //     throw std::logic_error("Columns must be of type std::unordered_map<std::string, std::string> or std::map<std::string, std::string>");
+    // }
     /* The above code is creating a SQL command to create a table in a database if it does not already
     exist. It is using the variables "NameTable" and "Columns" to dynamically generate the table
     name and column names and types. The code iterates through the "Columns" map and appends each
@@ -29,13 +29,13 @@ int DB::Database::CreateTable(const std::string &NameTable, auto Columns)
         throw std::runtime_error("Error in CREATE TABLE command");
     return 0;
 }
-int DB::Database::InsertValuesToTable(const std::string &NameTable, auto  Fields)
+int DB::Database::InsertValuesToTable(const std::string &NameTable, std::unordered_map<std::string, std::string>  Fields)
 {
     std::string SQL_COMMAND;
-    if (typeid(Fields) != typeid(std::unordered_map<std::string, std::string>) || typeid(Fields) != typeid(std::map<std::string, std::string>))
-    {
-        throw std::logic_error("Columns must be of type std::unordered_map<std::string, std::string> or std::map<std::string, std::string>");
-    }
+    // if (typeid(Fields) != typeid(std::unordered_map<std::string, std::string>) || typeid(Fields) != typeid(std::map<std::string, std::string>))
+    // {
+    //     throw std::logic_error("Columns must be of type std::unordered_map<std::string, std::string> or std::map<std::string, std::string>");
+    // }
     /* The bellow code is constructing an SQL INSERT command. It takes a table name (stored in the
     variable NameTable) and a map of fields (stored in the variable Fields) as input. */
     SQL_COMMAND = "INSERT INTO 'main'.'" + NameTable + "' ";
