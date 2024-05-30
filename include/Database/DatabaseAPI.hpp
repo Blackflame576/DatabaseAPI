@@ -17,23 +17,29 @@ namespace DB
         int ArraySize;
         sqlite3 *db;
         sqlite3_stmt *statement;
-        int RESULT_SQL;
+        bool isOpen = false;
+        // int RESULT_SQL;
         // std::string AnswerDB;
         std::string DefaultDatabesePath = std::filesystem::current_path().generic_string() + "/DB/AppInstaller.db";
         void open(std::string *DB_Path = nullptr)
         {
-            RESULT_SQL = sqlite3_open(DB_Path != nullptr ? DB_Path->c_str() : DefaultDatabesePath.c_str(), &db);
+            int RESULT_SQL = sqlite3_open(DB_Path != nullptr ? DB_Path->c_str() : DefaultDatabesePath.c_str(), &db);
 
             // if result of open database != SQLITE_OK, that send error
             if (RESULT_SQL != SQLITE_OK)
             {
                 throw std::runtime_error("Failed to connect to database");
             }
+            isOpen = true;
         }
         // Database();
         ~Database()
         {
-            sqlite3_close(db);
+            if (isOpen) sqlite3_close(db);
+        }
+        void close()
+        {
+            if (isOpen) sqlite3_close(db);
         }
         int CreateTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Columns);
 
