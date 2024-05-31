@@ -318,8 +318,11 @@ int DB::Database::InsertApplicationsToTable(const std::string &NameTable, const 
     with the values provided for the columns 'Name', 'Windows', 'macOS', and 'Linux'. */
     SQL_COMMAND = "INSERT INTO 'main'.'" + NameTable + "' ('Name', 'Windows', 'macOS', 'Linux') VALUES ('" + NameApp + "', '" + WindowsCommand + "', '" + macOSCommand + "', '" + LinuxCommand + "');";
     int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
-    if (RESULT_SQL != SQLITE_OK)
-        throw std::runtime_error("Error in INSERT command");
+    if (RESULT_SQL!= SQLITE_OK)
+    {
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in preparing INSERT command: " + errorMessage);
+    }
     return 0;
 }
 
@@ -332,8 +335,11 @@ int DB::Database::RemoveApplicationFromTable(const std::string &NameTable, const
     "Name" column matches the value of "NameApp". */
     SQL_COMMAND = "DELETE FROM " + NameTable + " WHERE Name='" + NameApp + "'";
     int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
-    if (RESULT_SQL != SQLITE_OK)
-        throw std::runtime_error("Error in DELETE command");
+    if (RESULT_SQL!= SQLITE_OK)
+    {
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in preparing DELETE command: " + errorMessage);
+    }
     return 0;
 }
 
@@ -418,8 +424,11 @@ int DB::Database::InsertLogInformationToTable(const std::string &NameTable, cons
     std::string SQL_COMMAND;
     SQL_COMMAND = "INSERT INTO 'main'.'" + NameTable + "' ('Architecture', 'Channel', 'LogText', 'OS_NAME','FunctionName') VALUES ('" + Architecture + "', '" + Channel + "', '" + LogText + "', '" + OS_NAME + "', '" + FunctionName + "');";
     int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
-    if (RESULT_SQL != SQLITE_OK)
-        throw std::runtime_error("Error in INSERT command");
+    if (RESULT_SQL!= SQLITE_OK)
+    {
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in preparing INSERT command: " + errorMessage);
+    }
     return 0;
 }
 
@@ -451,7 +460,6 @@ int DB::Database::UpdateValuesInTable(const std::string &NameTable, std::unorder
         }
     }
     SQL_COMMAND += ";";
-    std::cout << SQL_COMMAND << std::endl;
     int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
     if (RESULT_SQL!= SQLITE_OK)
     {
