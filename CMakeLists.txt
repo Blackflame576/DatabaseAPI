@@ -54,5 +54,3 @@ target_link_libraries(
 
 include(GoogleTest)
 gtest_discover_tests(DatabaseTest)
-# Copying database for test
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/src/test/DB/ DESTINATION ${CMAKE_BINARY_DIR}/DB/)
