@@ -29,7 +29,7 @@ target_link_libraries(DatabaseAPI ${LIBRARIES})
 add_executable(UpdateValues_example ${CMAKE_CURRENT_SOURCE_DIR}/example/UpdateValues.cpp)
 target_link_libraries(UpdateValues_example DatabaseAPI)
 # Copying database for example
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/example/DB DESTINATION ${CMAKE_BINARY_DIR}/)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/example/DB DESTINATION ${CMAKE_BINARY_DIR}/test/)
 
 #Testing
 FetchContent_Declare(
@@ -54,5 +54,3 @@ target_link_libraries(
 
 include(GoogleTest)
 gtest_discover_tests(DatabaseTest)
-# Copying database for test
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/src/test/DB/ DESTINATION ${CMAKE_BINARY_DIR}/DB/)
