@@ -32,26 +32,22 @@ int DB::Database::CreateTable(const std::string &NameTable, std::unordered_map<s
     }
     return 0;
 }
-int DB::Database::InsertValuesToTable(const std::string &NameTable, std::unordered_map<std::string, std::string>  Fields)
+int DB::Database::InsertValueToTable(const std::string &NameTable, std::unordered_map<std::string, std::string>  Fields)
 {
     std::string SQL_COMMAND;
-    // if (typeid(Fields) != typeid(std::unordered_map<std::string, std::string>) || typeid(Fields) != typeid(std::map<std::string, std::string>))
-    // {
-    //     throw std::logic_error("Columns must be of type std::unordered_map<std::string, std::string> or std::map<std::string, std::string>");
-    // }
     /* The bellow code is constructing an SQL INSERT command. It takes a table name (stored in the
     variable NameTable) and a map of fields (stored in the variable Fields) as input. */
-    SQL_COMMAND = "INSERT INTO 'main'.'" + NameTable + "' ";
+    SQL_COMMAND = "INSERT INTO " + NameTable + " ";
     std::string Columns = "(";
     std::string Values = "(";
     for (int i = 1; const auto &element : Fields)
     {
-        Columns = Columns + "'" + element.first + "'";
-        Values = Values + "'" + element.second + "'";
+        Columns += "\"" + element.first + "\""; 
+        Values += "\"" + element.second + "\""; 
         if (i != Fields.size())
         {
-            Columns += ",";
-            Values += ",";
+            Columns += ", ";
+            Values += ", ";
         }
         i++;
     }
@@ -158,13 +154,16 @@ std::string DB::Database::GetApplicationURL(const std::string &NameTable, const 
     return AnswerDB;
 }
 
-std::unordered_map<std::string, std::string> DB::Database::GetAllValuesFromDB(const std::string &NameTable, const std::string &NameColumn)
+std::unordered_map<std::string, std::string> DB::Database::GetAllValuesFromDB(const std::string &NameTable)
 {
     std::unordered_map<std::string, std::string> WriteMap;
+    int ncols;
+    std::string Key;
+    std::string Value;
     std::string SQL_COMMAND;
     
     // Create SQL statement
-    SQL_COMMAND = "SELECT Name," + NameColumn + " FROM " + NameTable;
+    SQL_COMMAND = "SELECT * FROM " + NameTable;
     // Execute SQL statement
     int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), SQL_COMMAND.length(), &statement, nullptr);
     // if result of execute sql statement != SQLITE_OK, that send error
@@ -172,15 +171,24 @@ std::unordered_map<std::string, std::string> DB::Database::GetAllValuesFromDB(co
     {
         throw std::runtime_error("Not Found");
     }
-    // Loop through the results, a row at a time.
-    while ((RESULT_SQL = sqlite3_step(statement)) == SQLITE_ROW)
-    {
-        std::string Key = std::string(reinterpret_cast<const char *>(sqlite3_column_text(statement, 0)));
-        std::string Value = std::string(reinterpret_cast<const char *>(sqlite3_column_text(statement, 1)));
-        if (Value != "Not Found")
-        {
-            WriteMap.insert(std::pair<std::string, std::string>(Key, Value));
+    // Execute the SQL statement
+    RESULT_SQL = sqlite3_step(statement);
+    if (RESULT_SQL!= SQLITE_ROW) {
+        throw std::runtime_error("No rows returned");
+    }
+
+    // Fetch all rows from the result set
+    ncols = sqlite3_column_count(statement);
+    while (RESULT_SQL == SQLITE_ROW) {
+        for (int i = 0; i < ncols; i++) {
+            Key = sqlite3_column_name(statement, i);
+            Value = reinterpret_cast<const char*>(sqlite3_column_text(statement, i));
+            if (Value != "Empty")
+            {
+                WriteMap.insert(std::pair<std::string, std::string>(Key, Value));
+            }
         }
+        RESULT_SQL = sqlite3_step(statement);
     }
     // Free the statement when done.
     sqlite3_finalize(statement);
@@ -309,36 +317,29 @@ int DB::Database::GetArraySize(const std::string &NameTable, const std::string &
     return ArraySize;
 }
 
-int DB::Database::InsertApplicationsToTable(const std::string &NameTable, const std::string &NameApp, const std::string &WindowsCommand, const std::string &macOSCommand, const std::string &LinuxCommand)
-{
-    std::string SQL_COMMAND;
-    /* The bellow code is constructing an SQL INSERT command to insert data into a table. The command is
-    dynamically generated based on the values of variables `NameTable`, `NameApp`, `WindowsCommand`,
-    `macOSCommand`, and `LinuxCommand`. The command will insert a new row into the specified table
-    with the values provided for the columns 'Name', 'Windows', 'macOS', and 'Linux'. */
-    SQL_COMMAND = "INSERT INTO 'main'.'" + NameTable + "' ('Name', 'Windows', 'macOS', 'Linux') VALUES ('" + NameApp + "', '" + WindowsCommand + "', '" + macOSCommand + "', '" + LinuxCommand + "');";
-    int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
-    if (RESULT_SQL!= SQLITE_OK)
-    {
-        std::string errorMessage = sqlite3_errmsg(db);
-        throw std::runtime_error("Error in preparing INSERT command: " + errorMessage);
-    }
-    return 0;
-}
-
-int DB::Database::RemoveApplicationFromTable(const std::string &NameTable, const std::string &NameApp)
+int DB::Database::RemoveValueFromTable(const std::string &NameTable, std::unordered_map<std::string,std::string> Parameters)
 {
     std::string SQL_COMMAND;
     /* The bellow code is constructing a SQL command to delete a row from a table in a database. The
     table name is stored in the variable "NameTable" and the row to be deleted is specified by the
     value of the variable "NameApp". The constructed SQL command will delete the row where the
     "Name" column matches the value of "NameApp". */
-    SQL_COMMAND = "DELETE FROM " + NameTable + " WHERE Name='" + NameApp + "'";
+    SQL_COMMAND = "DELETE FROM " + NameTable + " WHERE ";
+    for (int i = 1; const auto &element : Parameters)
+    {
+        SQL_COMMAND += element.first + "='" + element.second + "'";
+        if (i != Parameters.size())
+        {
+            SQL_COMMAND += " AND ";
+        }
+        i++;
+    }
+    SQL_COMMAND += ";";
     int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
     if (RESULT_SQL!= SQLITE_OK)
     {
         std::string errorMessage = sqlite3_errmsg(db);
-        throw std::runtime_error("Error in preparing DELETE command: " + errorMessage);
+        throw std::runtime_error("Error in preparing INSERT command: " + errorMessage);
     }
     return 0;
 }
@@ -349,6 +350,7 @@ int DB::Database::AddApplications(const std::string Tables[])
     std::string Windows_Command;
     std::string macOS_Command;
     std::string Linux_Command;
+    std::unordered_map<std::string, std::string> values;
     int RESULT_COMMAND;
 
     /* The bellow code is checking if the size of the "Tables" vector is greater than or equal to 1. If
@@ -367,9 +369,13 @@ int DB::Database::AddApplications(const std::string Tables[])
         std::getline(std::cin, macOS_Command);
         std::cout << "Linux:";
         std::getline(std::cin, Linux_Command);
+        
+        values = {{"Name",NameApp},{"Windows",Windows_Command},{ "macOS", macOS_Command},{ "Linux", Linux_Command}};
         for (int i = 0; i < Tables->size(); i++)
         {
-            RESULT_COMMAND = InsertApplicationsToTable(Tables[i], NameApp, Windows_Command, macOS_Command, Linux_Command);
+            
+            RESULT_COMMAND = InsertValueToTable(Tables[i],values);
+            // RESULT_COMMAND = InsertApplicationsToTable(Tables[i], NameApp, Windows_Command, macOS_Command, Linux_Command);
             if (RESULT_COMMAND == 0)
             {
                 std::cout << NameApp << " successfully added to " << Tables[i] << std::endl;
@@ -389,6 +395,7 @@ int DB::Database::RemoveApplications(const std::string Tables[])
     std::string Windows_Command;
     std::string macOS_Command;
     std::string Linux_Command;
+    std::unordered_map<std::string, std::string> values;
     int RESULT_COMMAND;
 
     /* The bellow code is checking if the size of the "Tables" object is greater than or equal to 1. If
@@ -404,30 +411,13 @@ int DB::Database::RemoveApplications(const std::string Tables[])
         std::getline(std::cin, macOS_Command);
         std::cout << "Linux:";
         std::getline(std::cin, Linux_Command);
-
+        values = {{"Name",NameApp}};
         for (int i = 0; i < Tables->size(); i++)
         {
-            RESULT_COMMAND = RemoveApplicationFromTable(Tables[i], NameApp);
+            RESULT_COMMAND = RemoveValueFromTable(Tables[i], values);
             if (RESULT_COMMAND == 0)
                 std::cout << NameApp << " successfully removed to " << Tables[i] << std::endl;
         }
-    }
-    return 0;
-}
-
-int DB::Database::InsertLogInformationToTable(const std::string &NameTable, const std::string &Architecture, const std::string &OS_NAME, const std::string &Channel, const std::string &FunctionName, const std::string &LogText)
-{
-    /* The bellow code is constructing an SQL INSERT statement. It is creating a command to insert data
-    into a table named 'NameTable' in the 'main' database. The data being inserted includes values
-    for the columns 'Architecture', 'Channel', 'LogText', 'OS_NAME', and 'FunctionName'. The values
-    for these columns are being passed as variables in the code. */
-    std::string SQL_COMMAND;
-    SQL_COMMAND = "INSERT INTO 'main'.'" + NameTable + "' ('Architecture', 'Channel', 'LogText', 'OS_NAME','FunctionName') VALUES ('" + Architecture + "', '" + Channel + "', '" + LogText + "', '" + OS_NAME + "', '" + FunctionName + "');";
-    int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
-    if (RESULT_SQL!= SQLITE_OK)
-    {
-        std::string errorMessage = sqlite3_errmsg(db);
-        throw std::runtime_error("Error in preparing INSERT command: " + errorMessage);
     }
     return 0;
 }

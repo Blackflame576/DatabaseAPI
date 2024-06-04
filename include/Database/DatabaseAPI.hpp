@@ -43,7 +43,7 @@ namespace DB
         }
         int CreateTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Columns);
 
-        int InsertValuesToTable(const std::string &NameTable, std::unordered_map<std::string, std::string>  Fields);
+        int InsertValueToTable(const std::string &NameTable, std::unordered_map<std::string, std::string>  Fields);
 
         bool ExistValueInTable(const std::string &NameTable,const std::string &NameColumn,const std::string &Value);
 
@@ -57,19 +57,15 @@ namespace DB
 
         std::string GetApplicationURL(const std::string &NameTable,const std::string &Channel,const std::string &NameColumn,const std::string &Architecture,const std::string &Version);
 
-        std::unordered_map<std::string, std::string> GetAllValuesFromDB(const std::string &NameTable,const std::string &NameColumn);
+        std::unordered_map<std::string, std::string> GetAllValuesFromDB(const std::string &NameTable);
 
         std::unordered_map<std::string, std::string> GetDevPackFromDB(const std::string &NameTable,const std::string &NameColumn);
 
-        int InsertApplicationsToTable(const std::string &NameTable,const std::string &NameApp,const std::string &WindowsCommand,const std::string &macOSCommand,const std::string &LinuxCommand);
-
-        int RemoveApplicationFromTable(const std::string &NameTable,const std::string &NameApp);
+        int RemoveValueFromTable(const std::string &NameTable,std::unordered_map<std::string,std::string> Parameters);
 
         int AddApplications(const std::string Tables[]);
 
         int RemoveApplications(const std::string Tables[]);
-
-        int InsertLogInformationToTable(const std::string &NameTable, const std::string &Architecture,const std::string &OS_NAME,const std::string &Channel,const std::string &FunctionName,const std::string &LogText);
 
         int UpdateValuesInTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Values, std::unordered_map<std::string, std::string> Parameters);
         // Method of make string to upper
