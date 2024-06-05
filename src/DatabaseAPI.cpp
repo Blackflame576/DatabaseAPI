@@ -3,41 +3,30 @@
 
 int DB::Database::CreateTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Columns)
 {
-    std::string SQL_COMMAND;
-    // if (typeid(Columns) != typeid(std::unordered_map<std::string, std::string>) || typeid(Columns) != typeid(std::map<std::string, std::string>))
-    // {
-    //     throw std::logic_error("Columns must be of type std::unordered_map<std::string, std::string> or std::map<std::string, std::string>");
-    // }
-    /* The above code is creating a SQL command to create a table in a database if it does not already
-    exist. It is using the variables "NameTable" and "Columns" to dynamically generate the table
-    name and column names and types. The code iterates through the "Columns" map and appends each
-    column name and type to the SQL command string. If it is not the last column, a comma is added
-    to separate the columns. Finally, the closing parentheses are added to complete the SQL command. */
-    SQL_COMMAND = "CREATE TABLE IF NOT EXISTS " + NameTable + "(\n";
+    std::string SQL_QUERY;
+    SQL_QUERY = "CREATE TABLE IF NOT EXISTS " + NameTable + "(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,\n";
     for (int i = 1; const auto &element : Columns)
     {
-        SQL_COMMAND = SQL_COMMAND + element.first + " " + to_upper(element.second);
+        SQL_QUERY = SQL_QUERY + element.first + " " + to_upper(element.second);
         if (i != Columns.size())
         {
-            SQL_COMMAND += ",";
+            SQL_QUERY += ",";
         }
         i++;
     }
-    SQL_COMMAND += ")";
-    int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
+    SQL_QUERY += ")";
+    int RESULT_SQL = sqlite3_exec(db, SQL_QUERY.c_str(), callback, NULL, NULL);
     if (RESULT_SQL!= SQLITE_OK)
     {
         std::string errorMessage = sqlite3_errmsg(db);
-        throw std::runtime_error("Error in preparing CREATE TABLE command: " + errorMessage);
+        throw std::runtime_error("Error in execution CREATE TABLE command: " + errorMessage);
     }
     return 0;
 }
 int DB::Database::InsertValueToTable(const std::string &NameTable, std::unordered_map<std::string, std::string>  Fields)
 {
-    std::string SQL_COMMAND;
-    /* The bellow code is constructing an SQL INSERT command. It takes a table name (stored in the
-    variable NameTable) and a map of fields (stored in the variable Fields) as input. */
-    SQL_COMMAND = "INSERT INTO " + NameTable + " ";
+    std::string SQL_QUERY;
+    SQL_QUERY = "INSERT INTO " + NameTable + " ";
     std::string Columns = "(";
     std::string Values = "(";
     for (int i = 1; const auto &element : Fields)
@@ -53,22 +42,22 @@ int DB::Database::InsertValueToTable(const std::string &NameTable, std::unordere
     }
     Columns += ")";
     Values += ")";
-    SQL_COMMAND += Columns + " VALUES " + Values + ";";
-    int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
+    SQL_QUERY += Columns + " VALUES " + Values + ";";
+    int RESULT_SQL = sqlite3_exec(db, SQL_QUERY.c_str(), callback, NULL, NULL);
     if (RESULT_SQL!= SQLITE_OK)
     {
         std::string errorMessage = sqlite3_errmsg(db);
-        throw std::runtime_error("Error in preparing INSERT command: " + errorMessage);
+        throw std::runtime_error("Error in execution INSERT command: " + errorMessage);
     }
     return 0;
 }
 bool DB::Database::ExistValueInTable(const std::string &NameTable,const std::string &NameColumn,const std::string &Value)
 {
-    std::string SQL_COMMAND;
+    std::string SQL_QUERY;
     // Create SQL statement
-    SQL_COMMAND = "SELECT * FROM " + NameTable + " WHERE " + NameColumn + "='" + Value + "'";
+    SQL_QUERY = "SELECT * FROM " + NameTable + " WHERE " + NameColumn + "='" + Value + "'";
     // Execute SQL statement
-    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), SQL_COMMAND.length(), &statement, nullptr);
+    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), SQL_QUERY.length(), &statement, nullptr);
     // if result of execute sql statement != SQLITE_OK, that send error
     if (sqlite3_step(statement) == SQLITE_ROW) {
         sqlite3_finalize(statement);
@@ -82,15 +71,16 @@ bool DB::Database::ExistValueInTable(const std::string &NameTable,const std::str
 std::string DB::Database::GetValueFromDB(const std::string &NameTable, const std::string &NameApp, const std::string &NameColumn)
 {
     std::string AnswerDB;
-    std::string SQL_COMMAND;
+    std::string SQL_QUERY;
     // Create SQL statement
-    SQL_COMMAND = "SELECT " + NameColumn + " FROM " + NameTable + " WHERE Name='" + NameApp + "'";
+    SQL_QUERY = "SELECT " + NameColumn + " FROM " + NameTable + " WHERE Name='" + NameApp + "'";
     // Execute SQL statement
-    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), SQL_COMMAND.length(), &statement, nullptr);
+    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), SQL_QUERY.length(), &statement, nullptr);
     // if result of execute sql statement != SQLITE_OK, that send error
     if (RESULT_SQL != SQLITE_OK)
     {
-        throw std::runtime_error("Not Found");
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in execution SELECT command: " + errorMessage);
     }
     // Loop through the results, a row at a time.
     while ((RESULT_SQL = sqlite3_step(statement)) == SQLITE_ROW)
@@ -107,15 +97,16 @@ std::string DB::Database::GetValueFromDB(const std::string &NameTable, const std
 std::string DB::Database::GetVersionFromDB(const std::string &NameTable, const std::string &Channel, const std::string &NameColumn, const std::string &Architecture)
 {
     std::string AnswerDB;
-    std::string SQL_COMMAND;
+    std::string SQL_QUERY;
     // Create SQL statement
-    SQL_COMMAND = "SELECT " + NameColumn + " FROM " + NameTable + " WHERE Channel='" + Channel + "' AND Architecture='" + Architecture + "'";
+    SQL_QUERY = "SELECT " + NameColumn + " FROM " + NameTable + " WHERE Channel='" + Channel + "' AND Architecture='" + Architecture + "'";
     // Execute SQL statement
-    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), SQL_COMMAND.length(), &statement, nullptr);
+    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), SQL_QUERY.length(), &statement, nullptr);
     // if result of execute sql statement != SQLITE_OK, that send error
     if (RESULT_SQL != SQLITE_OK)
     {
-        throw std::runtime_error("Not Found");
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in execution SELECT command: " + errorMessage);
     }
     // Loop through the results, a row at a time.
     while ((RESULT_SQL = sqlite3_step(statement)) == SQLITE_ROW)
@@ -132,15 +123,16 @@ std::string DB::Database::GetVersionFromDB(const std::string &NameTable, const s
 std::string DB::Database::GetApplicationURL(const std::string &NameTable, const std::string &Channel, const std::string &NameColumn, const std::string &Architecture, const std::string &Version)
 {
     std::string AnswerDB;
-    std::string SQL_COMMAND;
+    std::string SQL_QUERY;
     // Create SQL statement
-    SQL_COMMAND = "SELECT " + NameColumn + " FROM " + NameTable + " WHERE Channel='" + Channel + "' AND Architecture='" + Architecture + "' AND Version='" + Version + "'";
+    SQL_QUERY = "SELECT " + NameColumn + " FROM " + NameTable + " WHERE Channel='" + Channel + "' AND Architecture='" + Architecture + "' AND Version='" + Version + "'";
     // Execute SQL statement
-    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), SQL_COMMAND.length(), &statement, nullptr);
+    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), SQL_QUERY.length(), &statement, nullptr);
     // if result of execute sql statement != SQLITE_OK, that send error
     if (RESULT_SQL != SQLITE_OK)
     {
-        throw std::runtime_error("Not Found");
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in execution SELECT command: " + errorMessage);
     }
     // Loop through the results, a row at a time.
     while ((RESULT_SQL = sqlite3_step(statement)) == SQLITE_ROW)
@@ -154,22 +146,23 @@ std::string DB::Database::GetApplicationURL(const std::string &NameTable, const 
     return AnswerDB;
 }
 
-std::unordered_map<std::string, std::string> DB::Database::GetAllValuesFromDB(const std::string &NameTable)
+std::unordered_map<std::string, std::string> DB::Database::GetAllValuesByID(const std::string &NameTable,const int &id)
 {
     std::unordered_map<std::string, std::string> WriteMap;
     int ncols;
     std::string Key;
     std::string Value;
-    std::string SQL_COMMAND;
+    std::string SQL_QUERY;
     
     // Create SQL statement
-    SQL_COMMAND = "SELECT * FROM " + NameTable;
+    SQL_QUERY = "SELECT * FROM " + NameTable;
     // Execute SQL statement
-    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), SQL_COMMAND.length(), &statement, nullptr);
+    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), SQL_QUERY.length(), &statement, nullptr);
     // if result of execute sql statement != SQLITE_OK, that send error
     if (RESULT_SQL != SQLITE_OK)
     {
-        throw std::runtime_error("Not Found");
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in execution SELECT * FROM command: " + errorMessage);
     }
     // Execute the SQL statement
     RESULT_SQL = sqlite3_step(statement);
@@ -196,20 +189,64 @@ std::unordered_map<std::string, std::string> DB::Database::GetAllValuesFromDB(co
     return WriteMap;
 }
 
+std::unordered_map<int, std::unordered_map<std::string, std::string>> DB::Database::GetAllRowsFromDB(const std::string &NameTable) {
+    std::unordered_map<int, std::unordered_map<std::string, std::string>> WriteMap;
+    int n = 0;
+    int RESULT_SQL;
+    int num_columns;
+    std::string SQL_QUERY;
+
+    SQL_QUERY = "SELECT * FROM " + NameTable;
+    RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), SQL_QUERY.length(), &statement, nullptr);
+
+    if (RESULT_SQL != SQLITE_OK) {
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in execution SELECT * FROM command: " + errorMessage);
+    }
+    num_columns = sqlite3_column_count(statement);
+    while ((RESULT_SQL = sqlite3_step(statement)) == SQLITE_ROW) {
+        int id = sqlite3_column_int(statement, 0);
+        std::unordered_map<std::string, std::string> row;
+        row.insert(std::pair<std::string, std::string>("id", std::to_string(id)));
+        for (int i = 1; i < num_columns; i++) {
+            std::string columnName = sqlite3_column_name(statement, i);
+            std::string columnValue = (const char*)sqlite3_column_text(statement, i);
+            row.insert(std::pair<std::string, std::string>(columnName, columnValue));
+        }
+        WriteMap.insert(std::pair<int, std::unordered_map<std::string, std::string>>(n, row));
+        n++;
+    }
+    /*example returned WriteMap:
+    {
+        {0, {
+                {"id",1},{"Name","VSCode"},{"Windows","winget install vscode"...}
+            }
+        },
+        {1, {
+                {"id",2},{"Name","CMake"},{"Windows","winget install cmake"...}
+            }
+        }
+    }
+    */
+    sqlite3_finalize(statement);
+    return WriteMap;
+}
+
 std::unordered_map<std::string, std::string> DB::Database::GetAllVersionsFromDB(const std::string &NameTable, const std::string &Architecture)
 {
     std::unordered_map<std::string, std::string> WriteMap;
-    std::string SQL_COMMAND;
+    std::string SQL_QUERY;
 
     // Create SQL statement
-    // SQL_COMMAND = "SELECT Channel,Version FROM '" + NameTable + "' WHERE Architecture='" + Architecture + "'";
-    SQL_COMMAND = "SELECT Channel,Version FROM '" + NameTable + "' WHERE Architecture='" + Architecture + "'";
+    // SQL_QUERY = "SELECT Channel,Version FROM '" + NameTable + "' WHERE Architecture='" + Architecture + "'";
+    SQL_QUERY = "SELECT Channel,Version FROM '" + NameTable + "' WHERE Architecture='" + Architecture + "'";
     // Execute SQL statement
-    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), SQL_COMMAND.length(), &statement, nullptr);
+    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), SQL_QUERY.length(), &statement, nullptr);
     // if result of execute sql statement != SQLITE_OK, that send error
     if (RESULT_SQL != SQLITE_OK)
     {
-        throw std::runtime_error("Not Found");
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in execution SELECT Channel,Version command: " + errorMessage);
     }
     // Loop through the results, a row at a time.
     while ((RESULT_SQL = sqlite3_step(statement)) == SQLITE_ROW)
@@ -231,18 +268,19 @@ std::string DB::Database::GetLatestVersion(const std::string &NameTable, const s
 {
     std::string AnswerDB;
     int tableCount = GetArraySize(NameTable, NameColumn);
-    std::string SQL_COMMAND;
+    std::string SQL_QUERY;
 
     if (tableCount > 0)
     {
         // Create SQL statement
-        SQL_COMMAND = "SELECT max(" + NameColumn + ") FROM " + NameTable + " WHERE Channel='" + Channel + "' AND Architecture='" + Architecture + "'";
+        SQL_QUERY = "SELECT max(" + NameColumn + ") FROM " + NameTable + " WHERE Channel='" + Channel + "' AND Architecture='" + Architecture + "'";
         // Execute SQL statement
-        int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), SQL_COMMAND.length(), &statement, nullptr);
+        int RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), SQL_QUERY.length(), &statement, nullptr);
         // if result of execute sql statement != SQLITE_OK, that send error
         if (RESULT_SQL != SQLITE_OK)
         {
-            throw std::runtime_error("Not Found");
+            std::string errorMessage = sqlite3_errmsg(db);
+            throw std::runtime_error("Error in execution SELECT max() command: " + errorMessage);
         }
         // Loop through the results, a row at a time.
         while ((RESULT_SQL = sqlite3_step(statement)) == SQLITE_ROW)
@@ -264,16 +302,17 @@ std::string DB::Database::GetLatestVersion(const std::string &NameTable, const s
 std::unordered_map<std::string, std::string> DB::Database::GetDevPackFromDB(const std::string &NameTable, const std::string &NameColumn)
 {
     std::unordered_map<std::string, std::string> WriteMap;
-    std::string SQL_COMMAND;
+    std::string SQL_QUERY;
     // Create SQL statement
-    SQL_COMMAND = "SELECT Number," + NameColumn + " FROM " + NameTable;
-    // SQL_COMMAND = "SELECT Number,Language FROM DevelopmentPacks";
+    SQL_QUERY = "SELECT Number," + NameColumn + " FROM " + NameTable;
+    // SQL_QUERY = "SELECT Number,Language FROM DevelopmentPacks";
     // Execute SQL statement
-    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), SQL_COMMAND.length(), &statement, nullptr);
+    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), SQL_QUERY.length(), &statement, nullptr);
     // if result of execute sql statement != SQLITE_OK, that send error
     if (RESULT_SQL != SQLITE_OK)
     {
-        throw std::runtime_error("Not Found");
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in execution SELECT Number command: " + errorMessage);
     }
     int i = 0;
     // Loop through the results, a row at a time.
@@ -295,16 +334,17 @@ std::unordered_map<std::string, std::string> DB::Database::GetDevPackFromDB(cons
 
 int DB::Database::GetArraySize(const std::string &NameTable, const std::string &NameColumn)
 {
-    std::string SQL_COMMAND;
+    std::string SQL_QUERY;
     // Create SQL statement
-    SQL_COMMAND = "SELECT count(" + NameColumn + ") " + " FROM " + NameTable;
-    // SQL_COMMAND = "SELECT count(Windows) FROM Applications";
+    SQL_QUERY = "SELECT count(" + NameColumn + ") " + " FROM " + NameTable;
+    // SQL_QUERY = "SELECT count(Windows) FROM Applications";
     // Execute SQL statement
-    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_COMMAND.c_str(), SQL_COMMAND.length(), &statement, nullptr);
+    int RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), SQL_QUERY.length(), &statement, nullptr);
     // if result of execute sql statement != SQLITE_OK, that send error
     if (RESULT_SQL != SQLITE_OK)
     {
-        throw std::runtime_error("Not Found");
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in execution SELECT count() command: " + errorMessage);
     }
     // Loop through the results, a row at a time.
     while ((RESULT_SQL = sqlite3_step(statement)) == SQLITE_ROW)
@@ -319,27 +359,23 @@ int DB::Database::GetArraySize(const std::string &NameTable, const std::string &
 
 int DB::Database::RemoveValueFromTable(const std::string &NameTable, std::unordered_map<std::string,std::string> Parameters)
 {
-    std::string SQL_COMMAND;
-    /* The bellow code is constructing a SQL command to delete a row from a table in a database. The
-    table name is stored in the variable "NameTable" and the row to be deleted is specified by the
-    value of the variable "NameApp". The constructed SQL command will delete the row where the
-    "Name" column matches the value of "NameApp". */
-    SQL_COMMAND = "DELETE FROM " + NameTable + " WHERE ";
+    std::string SQL_QUERY;
+    SQL_QUERY = "DELETE FROM " + NameTable + " WHERE ";
     for (int i = 1; const auto &element : Parameters)
     {
-        SQL_COMMAND += element.first + "='" + element.second + "'";
+        SQL_QUERY += element.first + "='" + element.second + "'";
         if (i != Parameters.size())
         {
-            SQL_COMMAND += " AND ";
+            SQL_QUERY += " AND ";
         }
         i++;
     }
-    SQL_COMMAND += ";";
-    int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
+    SQL_QUERY += ";";
+    int RESULT_SQL = sqlite3_exec(db, SQL_QUERY.c_str(), callback, NULL, NULL);
     if (RESULT_SQL!= SQLITE_OK)
     {
         std::string errorMessage = sqlite3_errmsg(db);
-        throw std::runtime_error("Error in preparing INSERT command: " + errorMessage);
+        throw std::runtime_error("Error in execution INSERT command: " + errorMessage);
     }
     return 0;
 }
@@ -398,9 +434,6 @@ int DB::Database::RemoveApplications(const std::string Tables[])
     std::unordered_map<std::string, std::string> values;
     int RESULT_COMMAND;
 
-    /* The bellow code is checking if the size of the "Tables" object is greater than or equal to 1. If
-    it is, it prompts the user to enter the name of an application, as well as commands for Windows,
-    macOS, and Linux. */
     if (Tables->size() >= 1)
     {
         std::cout << "Name:";
@@ -422,39 +455,104 @@ int DB::Database::RemoveApplications(const std::string Tables[])
     return 0;
 }
 
+int DB::Database::DeleteAllRows(const std::string &NameTable)
+{
+    std::string SQL_QUERY;
+    SQL_QUERY = "DELETE FROM " + NameTable + ";\nUPDATE SQLITE_SEQUENCE SET seq = 0 WHERE name = '" + NameTable + "';\nVACUUM;";
+    int RESULT_SQL = sqlite3_exec(db, SQL_QUERY.c_str(), callback, NULL, NULL);
+    if (RESULT_SQL != SQLITE_OK)
+    {
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in execution TRUNCATE TABLE command: " + errorMessage);
+    }
+    return 0;
+}
+
+int DB::Database::RunQuery(const std::string &SQL_QUERY)
+{
+    int RESULT_SQL = sqlite3_exec(db, SQL_QUERY.c_str(), callback, NULL, NULL);
+    if (RESULT_SQL != SQLITE_OK)
+    {
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in execution " + SQL_QUERY + " command: " + errorMessage);
+    }
+    return 0;
+}
+
+std::unordered_map<int, std::unordered_map<std::string, std::string>> DB::Database::ExecuteQuery(const std::string &SQL_QUERY) {
+    std::unordered_map<int, std::unordered_map<std::string, std::string>> WriteMap;
+    int n = 0;
+    int RESULT_SQL;
+    int num_columns;
+
+    RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), SQL_QUERY.length(), &statement, nullptr);
+
+    if (RESULT_SQL != SQLITE_OK) {
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in execution " + SQL_QUERY +  " command:  "  + errorMessage);
+    }
+    num_columns = sqlite3_column_count(statement);
+    while ((RESULT_SQL = sqlite3_step(statement)) == SQLITE_ROW) {
+        int id = sqlite3_column_int(statement, 0);
+        std::unordered_map<std::string, std::string> row;
+        row.insert(std::pair<std::string, std::string>("id", std::to_string(id)));
+        for (int i = 1; i < num_columns; i++) {
+            std::string columnName = sqlite3_column_name(statement, i);
+            std::string columnValue = (const char*)sqlite3_column_text(statement, i);
+            row.insert(std::pair<std::string, std::string>(columnName, columnValue));
+        }
+        WriteMap.insert(std::pair<int, std::unordered_map<std::string, std::string>>(n, row));
+        n++;
+    }
+    /*example returned WriteMap:
+    {
+        {0, {
+                {"id",1},{"Name","VSCode"},{"Windows","winget install vscode"...}
+            }
+        },
+        {1, {
+                {"id",2},{"Name","CMake"},{"Windows","winget install cmake"...}
+            }
+        }
+    }
+    */
+    sqlite3_finalize(statement);
+    return WriteMap;
+}
+
 int DB::Database::UpdateValuesInTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Values, std::unordered_map<std::string, std::string> Parameters)
 {
-    std::string SQL_COMMAND;
-    SQL_COMMAND = "UPDATE " + NameTable + " SET ";
+    std::string SQL_QUERY;
+    SQL_QUERY = "UPDATE " + NameTable + " SET ";
     for (int i = 1;const auto &element:Values)
     {
-        SQL_COMMAND += element.first + "='" + element.second + "'";
+        SQL_QUERY += element.first + "='" + element.second + "'";
         if (i != Values.size())
         {
-            SQL_COMMAND += ",";
+            SQL_QUERY += ",";
         }
         i++;
     }
 
-    if (Parameters.size() != 0 && (typeid(Parameters) == typeid(std::unordered_map<std::string, std::string>) || typeid(Parameters) == typeid(std::map<std::string, std::string>)))
+    if (Parameters.size() != 0)
     {
-        SQL_COMMAND += " WHERE ";
+        SQL_QUERY += " WHERE ";
         for (int i = 1;const auto &element:Parameters)
         {
-            SQL_COMMAND += element.first + "='"  + element.second  +  "'";
+            SQL_QUERY += element.first + "='"  + element.second  +  "'";
             if (i != Parameters.size())
             {
-                SQL_COMMAND += " AND ";
+                SQL_QUERY += " AND ";
             }
             i++;
         }
     }
-    SQL_COMMAND += ";";
-    int RESULT_SQL = sqlite3_exec(db, SQL_COMMAND.c_str(), callback, NULL, NULL);
+    SQL_QUERY += ";";
+    int RESULT_SQL = sqlite3_exec(db, SQL_QUERY.c_str(), callback, NULL, NULL);
     if (RESULT_SQL!= SQLITE_OK)
     {
         std::string errorMessage = sqlite3_errmsg(db);
-        throw std::runtime_error("Error in preparing UPDATE command: " + errorMessage);
+        throw std::runtime_error("Error in execution UPDATE command: " + errorMessage);
     }
     return 0;
 }

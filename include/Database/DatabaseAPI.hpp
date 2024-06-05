@@ -53,11 +53,13 @@ namespace DB
 
         std::unordered_map<std::string, std::string> GetAllVersionsFromDB(const std::string &NameTable,const std::string &Architecture);
 
+        std::unordered_map<int, std::unordered_map<std::string, std::string>> GetAllRowsFromDB(const std::string &NameTable);
+
         std::string GetLatestVersion(const std::string &NameTable,const std::string &Channel,const std::string &NameColumn,const std::string &Architecture);
 
         std::string GetApplicationURL(const std::string &NameTable,const std::string &Channel,const std::string &NameColumn,const std::string &Architecture,const std::string &Version);
 
-        std::unordered_map<std::string, std::string> GetAllValuesFromDB(const std::string &NameTable);
+        std::unordered_map<std::string, std::string> GetAllValuesByID(const std::string &NameTable,const int &id);
 
         std::unordered_map<std::string, std::string> GetDevPackFromDB(const std::string &NameTable,const std::string &NameColumn);
 
@@ -66,6 +68,12 @@ namespace DB
         int AddApplications(const std::string Tables[]);
 
         int RemoveApplications(const std::string Tables[]);
+        
+        int DeleteAllRows(const std::string  &NameTable);
+
+        int RunQuery(const std::string  &SQL_QUERY);
+
+        std::unordered_map<int, std::unordered_map<std::string, std::string>> ExecuteQuery(const std::string  &SQL_QUERY);
 
         int UpdateValuesInTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Values, std::unordered_map<std::string, std::string> Parameters);
         // Method of make string to upper
