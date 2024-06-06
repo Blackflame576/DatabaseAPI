@@ -3,13 +3,13 @@
 TEST_F(DatabaseTest, DeleteAllRows)
 {
     bool expression;
-    expression = database.DeleteAllRows(Table) == 0 && database.DeleteAllRows(DevelopmentTable)  ==  0;
+    expression = database.DeleteAllRows(Table) == 0 && database.DeleteAllRows(DevelopmentTable)  ==  0 && VersionsDatabase.DeleteAllRows("WindowsVersions") == 0;
     EXPECT_TRUE(expression);
 }
 TEST_F(DatabaseTest, CreateTable)
 {
     int result;
-    std::unordered_map<std::string, std::string> columns;
+    DB::DatabaseValues columns;
     columns = {{"Name", "TEXT"}, {"Windows", "TEXT"}, {"Linux", "TEXT"}, {"macOS", "TEXT"}};
     result = database.CreateTable(Table, columns);
     EXPECT_EQ(result, 0);
@@ -17,24 +17,72 @@ TEST_F(DatabaseTest, CreateTable)
     columns = {{"Number", "TEXT"}, {"Language", "TEXT"}};
     result = database.CreateTable(DevelopmentTable, columns);
     EXPECT_EQ(result, 0);
+    
+    columns = {{"Version", "INTEGER"}, {"Channel", "TEXT"},{"Architecture", "TEXT"},{"Url", "TEXT"},{"Url_arm64", "TEXT"}};
+    result = VersionsDatabase.CreateTable("WindowsVersions", columns);
+    EXPECT_EQ(result, 0);
 }
 
 TEST_F(DatabaseTest, InsertValue)
 {
     int result;
-    std::unordered_map<std::string, std::string> values;
+    DB::DatabaseValues values;
     values = {{"Name", NameApp}, {"Windows", Windows_Command}, {"Linux", Linux_Command}, {"macOS", macOS_Command}};
     result = database.InsertRowToTable(Table, values);
     EXPECT_EQ(result, 0);
+
     values = {{"Number", "1"}, {"Language", "PythonDevelopmentTools"}};
     result = database.InsertRowToTable(DevelopmentTable, values);
+    EXPECT_EQ(result, 0);
+
+    values = {{"Version", "0.1"}, {"Channel", "stable"},{"Architecture","amd64"},{"Url","https://github.com/DeepForge-Tech/DeepForge-Toolset/releases/download/v0.1_linux_amd64/DeepForge-Toolset_0.1_linux_amd64.zip"},{"Url_arm64","Empty"}};
+    result = VersionsDatabase.InsertRowToTable("WindowsVersions", values);
+    EXPECT_EQ(result, 0);
+
+    values = {{"Version", "0.2"}, {"Channel", "stable"},{"Architecture","amd64"},{"Url","https://github.com/DeepForge-Tech/DeepForge-Toolset/releases/download/v0.2_linux_amd64/DeepForge-Toolset_0.2_linux_amd64.zip"},{"Url_arm64","Empty"}};
+    result = VersionsDatabase.InsertRowToTable("WindowsVersions", values);
     EXPECT_EQ(result, 0);
 }
 
 TEST_F(DatabaseTest, GetValue)
 {
-    std::unordered_map<int, std::unordered_map<std::string, std::string>> db_rows;
-    std::unordered_map<std::string, std::string> parameters;
+    DB::DatabaseValues parameters;
+    std::string result;
+    parameters = {{"Name", NameApp}};
+    result = database.GetValueFromRow(Table, "Windows", parameters);
+    EXPECT_STREQ(Windows_Command.c_str(), result.c_str());
+}
+
+TEST_F(DatabaseTest, GetMaxValue)
+{
+    DB::DatabaseValues parameters;
+    std::string result;
+    parameters = {{"Channel","stable"},{"Architecture","amd64"}};
+    result  = VersionsDatabase.GetMaxValueFromTable("WindowsVersions","Version", parameters);
+    // std::unordered_map<int, DB::DatabaseValues> db_rows;
+    // DB::DatabaseValues parameters;
+    // parameters  = {{"Name", NameApp}};
+    // db_rows = database.GetRowFromTable(Table, parameters);
+    EXPECT_STREQ("0.2", result.c_str());
+}
+
+TEST_F(DatabaseTest, GetMaxRow)
+{
+    DB::DatabaseValues parameters;
+    DB::DatabaseValues db_rows;
+    parameters = {{"Channel","stable"},{"Architecture","amd64"}};
+    db_rows = VersionsDatabase.GetMaxRowFromTable("WindowsVersions","Version", parameters);
+    for (const auto &element : db_rows)
+    {
+        std::cout << element.first << " : " << element.second << std::endl;
+    }
+    EXPECT_STREQ(db_rows["Version"].c_str(),"0.2");
+}
+
+TEST_F(DatabaseTest, GetRow)
+{
+    std::unordered_map<int, DB::DatabaseValues> db_rows;
+    DB::DatabaseValues parameters;
     parameters  = {{"Name", NameApp}};
     db_rows = database.GetRowFromTable(Table, parameters);
     EXPECT_STREQ(Windows_Command.c_str(), db_rows[0]["Windows"].c_str());
@@ -42,7 +90,7 @@ TEST_F(DatabaseTest, GetValue)
 
 TEST_F(DatabaseTest, GetRowByID)
 {
-    std::unordered_map<std::string, std::string> db_values;
+    DB::DatabaseValues db_values;
     bool expression;
     db_values = database.GetRowByID(Table,1);
     expression = Windows_Command == db_values["Windows"] && Linux_Command == db_values["Linux"] && macOS_Command == db_values["macOS"];
@@ -51,7 +99,7 @@ TEST_F(DatabaseTest, GetRowByID)
 
 TEST_F(DatabaseTest, GetAllRows)
 {
-    typedef std::unordered_map<std::string, std::string> db_values;
+    typedef DB::DatabaseValues db_values;
     std::unordered_map<int,db_values> db_rows;
     bool expression;
     db_rows = database.GetAllRowsFromTable(Table);
@@ -61,7 +109,7 @@ TEST_F(DatabaseTest, GetAllRows)
 
 TEST_F(DatabaseTest, ExecuteQuery)
 {
-    typedef std::unordered_map<std::string, std::string> db_values;
+    typedef DB::DatabaseValues db_values;
     std::unordered_map<int,db_values> db_rows;
     bool expression;
     db_rows = database.ExecuteQuery("SELECT * FROM " + Table);
@@ -73,8 +121,8 @@ TEST_F(DatabaseTest, RunQuery)
 {
     int result;
     bool expression;
-    std::unordered_map<std::string, std::string> db_values;
-    std::unordered_map<std::string, std::string> values;
+    DB::DatabaseValues db_values;
+    DB::DatabaseValues values;
     values = {
         {"Windows", "Updated_Test_Windows_Command"}, 
         {"Linux", "Updated_Test_Linux_Command"}, 
@@ -90,9 +138,9 @@ TEST_F(DatabaseTest, UpdateValues)
 {
     int result;
     bool expression;
-    std::unordered_map<std::string, std::string> db_values;
-    std::unordered_map<std::string, std::string> values;
-    std::unordered_map<std::string, std::string> parameters;
+    DB::DatabaseValues db_values;
+    DB::DatabaseValues values;
+    DB::DatabaseValues parameters;
     values = {
         {"Windows", "Updated_Test_Windows_Command"}, 
         {"Linux", "Updated_Test_Linux_Command"}, 
@@ -108,7 +156,7 @@ TEST_F(DatabaseTest, UpdateValues)
 TEST_F(DatabaseTest, RemoveRow)
 {
     int result;
-    std::unordered_map<std::string, std::string> values;
+    DB::DatabaseValues values;
     values = {{"Name",NameApp}};
     result = database.RemoveRowFromTable(Table, values);
     EXPECT_EQ(0, result);

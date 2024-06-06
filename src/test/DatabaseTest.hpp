@@ -10,7 +10,9 @@ class DatabaseTest : public ::testing::Test
 protected:
     std::string ProjectFolder;
     std::string DatabasePath;
+    std::string VersionsDBPAth;
     DB::Database database;
+    DB::Database VersionsDatabase;
     std::string NameApp;
     std::string Windows_Command;
     std::string macOS_Command;
@@ -22,6 +24,7 @@ protected:
     {
         ProjectFolder = std::filesystem::current_path().generic_string();
         DatabasePath = ProjectFolder + "/test/DB/AppInstaller.db";
+        VersionsDBPAth =  ProjectFolder  +  "/test/DB/Versions.db";
         NameApp = "TestApp";
         Windows_Command = "Test_Windows_Command";
         macOS_Command = "Test_macOS_Command";
@@ -33,7 +36,16 @@ protected:
             std::ofstream file(DatabasePath);
             file << "";
             file.close();
+            file.open(VersionsDBPAth);
+            file << "";
+            file.close();
         }
         database.open(&DatabasePath);
+        VersionsDatabase.open(&VersionsDBPAth);
+    }
+    void TearDown() override 
+    {
+        database.close();
+        VersionsDatabase.close();
     }
 };
