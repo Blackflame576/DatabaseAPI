@@ -43,27 +43,19 @@ namespace DB
         }
         int CreateTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Columns);
 
-        int InsertValueToTable(const std::string &NameTable, std::unordered_map<std::string, std::string>  Fields);
+        int InsertRowToTable(const std::string &NameTable, std::unordered_map<std::string, std::string>  Fields);
 
-        bool ExistValueInTable(const std::string &NameTable,const std::string &NameColumn,const std::string &Value);
+        bool ExistRowInTable(const std::string &NameTable,const std::string &NameColumn,const std::string &Value);
 
-        std::string GetValueFromDB(const std::string &NameTable,const std::string &NameApp,const std::string &NameColumn);
+        std::unordered_map<std::string, std::string> GetRowByID(const std::string &NameTable,const int &id);
 
-        std::string GetVersionFromDB(const std::string &NameTable,const std::string &Channel,const std::string &NameColumn,const std::string &Architecture);
+        std::unordered_map<int, std::unordered_map<std::string, std::string>> GetRowFromTable(const std::string &NameTable, std::unordered_map<std::string, std::string>  Parameters);
 
-        std::unordered_map<std::string, std::string> GetAllVersionsFromDB(const std::string &NameTable,const std::string &Architecture);
+        std::unordered_map<int, std::unordered_map<std::string, std::string>> GetAllRowsFromTable(const std::string &NameTable);
 
-        std::unordered_map<int, std::unordered_map<std::string, std::string>> GetAllRowsFromDB(const std::string &NameTable);
+        std::unordered_map<std::string,std::string> GetMaxRow(const std::string &NameTable,const std::string &NameColumn, std::unordered_map<std::string,std::string> Parameters);
 
-        std::string GetLatestVersion(const std::string &NameTable,const std::string &Channel,const std::string &NameColumn,const std::string &Architecture);
-
-        std::string GetApplicationURL(const std::string &NameTable,const std::string &Channel,const std::string &NameColumn,const std::string &Architecture,const std::string &Version);
-
-        std::unordered_map<std::string, std::string> GetAllValuesByID(const std::string &NameTable,const int &id);
-
-        std::unordered_map<std::string, std::string> GetDevPackFromDB(const std::string &NameTable,const std::string &NameColumn);
-
-        int RemoveValueFromTable(const std::string &NameTable,std::unordered_map<std::string,std::string> Parameters);
+        int RemoveRowFromTable(const std::string &NameTable,std::unordered_map<std::string,std::string> Parameters);
 
         int AddApplications(const std::string Tables[]);
 
@@ -75,7 +67,7 @@ namespace DB
 
         std::unordered_map<int, std::unordered_map<std::string, std::string>> ExecuteQuery(const std::string  &SQL_QUERY);
 
-        int UpdateValuesInTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Values, std::unordered_map<std::string, std::string> Parameters);
+        int UpdateRowInTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Values, std::unordered_map<std::string, std::string> Parameters);
         // Method of make string to upper
         std::string to_upper(const std::string &sentence)
         {
