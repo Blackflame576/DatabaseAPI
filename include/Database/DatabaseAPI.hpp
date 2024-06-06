@@ -53,7 +53,7 @@ namespace DB
 
         std::unordered_map<int, std::unordered_map<std::string, std::string>> GetAllRowsFromTable(const std::string &NameTable);
 
-        std::unordered_map<std::string,std::string> GetMaxRow(const std::string &NameTable,const std::string &NameColumn, std::unordered_map<std::string,std::string> Parameters);
+        std::unordered_map<std::string,std::string> GetMaxRowFromTable(const std::string &NameTable,const std::string &NameColumn, std::unordered_map<std::string,std::string> Parameters);
 
         int RemoveRowFromTable(const std::string &NameTable,std::unordered_map<std::string,std::string> Parameters);
 

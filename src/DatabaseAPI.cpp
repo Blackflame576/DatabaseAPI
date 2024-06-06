@@ -219,7 +219,7 @@ std::unordered_map<int, std::unordered_map<std::string, std::string>> DB::Databa
     return WriteMap;
 }
 
-std::unordered_map<std::string, std::string> DB::Database::GetMaxRow(const std::string &NameTable, const std::string &NameColumn, std::unordered_map<std::string, std::string> Parameters)
+std::unordered_map<std::string, std::string> DB::Database::GetMaxRowFromTable(const std::string &NameTable, const std::string &NameColumn, std::unordered_map<std::string, std::string> Parameters)
 {
     int num_columns;
     int RESULT_SQL;
