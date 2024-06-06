@@ -11,14 +11,16 @@
 
 namespace DB
 {
+    typedef std::unordered_map<std::string, std::string> DatabaseValues;
+
     class Database
     {
     public:
+        
         int ArraySize;
         sqlite3 *db;
         sqlite3_stmt *statement;
         bool isOpen = false;
-        // int RESULT_SQL;
         // std::string AnswerDB;
         std::string DefaultDatabesePath = std::filesystem::current_path().generic_string() + "/DB/AppInstaller.db";
         void open(std::string *DB_Path = nullptr)
@@ -41,19 +43,23 @@ namespace DB
         {
             if (isOpen) sqlite3_close(db);
         }
-        int CreateTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Columns);
+        int CreateTable(const std::string &NameTable, DatabaseValues Columns);
 
-        int InsertRowToTable(const std::string &NameTable, std::unordered_map<std::string, std::string>  Fields);
+        int InsertRowToTable(const std::string &NameTable, DatabaseValues  Fields);
 
         bool ExistRowInTable(const std::string &NameTable,const std::string &NameColumn,const std::string &Value);
 
-        std::unordered_map<std::string, std::string> GetRowByID(const std::string &NameTable,const int &id);
+        std::string GetValueFromRow(const std::string &NameTable, const std::string &NameColumn, std::unordered_map<std::string,std::string> Parameters);
 
-        std::unordered_map<int, std::unordered_map<std::string, std::string>> GetRowFromTable(const std::string &NameTable, std::unordered_map<std::string, std::string>  Parameters);
+        DatabaseValues GetRowByID(const std::string &NameTable,const int &id);
 
-        std::unordered_map<int, std::unordered_map<std::string, std::string>> GetAllRowsFromTable(const std::string &NameTable);
+        std::unordered_map<int, DatabaseValues> GetRowFromTable(const std::string &NameTable, DatabaseValues  Parameters);
+
+        std::unordered_map<int, DatabaseValues> GetAllRowsFromTable(const std::string &NameTable);
 
         std::unordered_map<std::string,std::string> GetMaxRowFromTable(const std::string &NameTable,const std::string &NameColumn, std::unordered_map<std::string,std::string> Parameters);
+
+        std::string GetMaxValueFromTable(const std::string &NameTable, const std::string &NameColumn, std::unordered_map<std::string,std::string> Parameters);
 
         int RemoveRowFromTable(const std::string &NameTable,std::unordered_map<std::string,std::string> Parameters);
 
@@ -65,9 +71,9 @@ namespace DB
 
         int RunQuery(const std::string  &SQL_QUERY);
 
-        std::unordered_map<int, std::unordered_map<std::string, std::string>> ExecuteQuery(const std::string  &SQL_QUERY);
+        std::unordered_map<int, DatabaseValues> ExecuteQuery(const std::string  &SQL_QUERY);
 
-        int UpdateRowInTable(const std::string &NameTable, std::unordered_map<std::string, std::string> Values, std::unordered_map<std::string, std::string> Parameters);
+        int UpdateRowInTable(const std::string &NameTable, DatabaseValues Values, DatabaseValues Parameters);
         // Method of make string to upper
         std::string to_upper(const std::string &sentence)
         {
