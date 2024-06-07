@@ -53,6 +53,10 @@ namespace DB
 
         DatabaseValues GetRowByID(const std::string &NameTable,const int &id);
 
+        DatabaseValues GetTwoColumnsFromTable(const std::string  &NameTable, const std::string &FirstColumn, const std::string &SecondColumn,DatabaseValues  Parameters);
+
+        DatabaseValues GetOneColumnFromTable(const std::string  &NameTable, const std::string  &NameColumn, DatabaseValues Parameters);
+
         std::unordered_map<int, DatabaseValues> GetRowFromTable(const std::string &NameTable, DatabaseValues  Parameters);
 
         std::unordered_map<int, DatabaseValues> GetAllRowsFromTable(const std::string &NameTable);
