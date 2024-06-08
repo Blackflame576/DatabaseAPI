@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 project(DatabaseAPI)
-set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+cmake_policy(SET CMP0135 NEW)
 set(CMAKE_CXX_STANDARD 20)
 include(GNUInstallDirs)
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/DownloadDependecies.cmake)
@@ -33,6 +33,7 @@ target_link_libraries(DatabaseAPI ${LIBRARIES})
 FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 FetchContent_MakeAvailable(googletest)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/test)
