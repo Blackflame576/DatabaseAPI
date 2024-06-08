@@ -12,5 +12,6 @@ include(FetchContent)
 FetchContent_Declare(SQLite
   GIT_REPOSITORY https://github.com/DeepForge-Technology/SQLite.git
   GIT_TAG master
+  DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 FetchContent_MakeAvailable(SQLite)
