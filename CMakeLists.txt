@@ -26,10 +26,8 @@ set(LIBRARIES SQLite)
 target_link_libraries(DatabaseAPI ${LIBRARIES})
 
 # Building examples
-add_executable(example ${CMAKE_CURRENT_SOURCE_DIR}/example/example.cpp)
-target_link_libraries(example DatabaseAPI)
-# Copying database for example
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/example/DB DESTINATION ${CMAKE_BINARY_DIR}/test/)
+# add_executable(example ${CMAKE_CURRENT_SOURCE_DIR}/example/example.cpp)
+# target_link_libraries(example DatabaseAPI)
 
 #Testing
 FetchContent_Declare(
