@@ -14,7 +14,7 @@ TEST_F(DatabaseTest, CreateTable)
     result = database.CreateTable(Table, columns);
     EXPECT_EQ(result, 0);
 
-    columns = {{"Number", "TEXT"}, {"Language", "TEXT"}};
+    columns = {{"Language", "TEXT"}};
     result = database.CreateTable(DevelopmentTable, columns);
     EXPECT_EQ(result, 0);
     
@@ -31,7 +31,7 @@ TEST_F(DatabaseTest, InsertValue)
     result = database.InsertRowToTable(Table, values);
     EXPECT_EQ(result, 0);
 
-    values = {{"Number", "1"}, {"Language", "PythonDevelopmentTools"}};
+    values = {{"Language", "PythonDevelopmentTools"}};
     result = database.InsertRowToTable(DevelopmentTable, values);
     EXPECT_EQ(result, 0);
 
@@ -45,6 +45,24 @@ TEST_F(DatabaseTest, InsertValue)
 }
 
 TEST_F(DatabaseTest, GetValue)
+{
+    DB::DatabaseValues parameters;
+    std::string result;
+    parameters = {{"Name", NameApp}};
+    result = database.GetValueFromRow(Table, "Windows", parameters);
+    EXPECT_STREQ(Windows_Command.c_str(), result.c_str());
+}
+
+TEST_F(DatabaseTest, GetTwoColumns)
+{
+    DB::DatabaseValues parameters;
+    DB::DatabaseValues db_rows;
+    // parameters = {{"Windows", NameApp}};
+    db_rows = database.GetTwoColumnsFromTable(Table, "Name", "Windows", parameters);
+    EXPECT_STREQ(Windows_Command.c_str(), db_rows[NameApp].c_str());
+}
+
+TEST_F(DatabaseTest, GetOneColumn)
 {
     DB::DatabaseValues parameters;
     std::string result;
@@ -72,10 +90,6 @@ TEST_F(DatabaseTest, GetMaxRow)
     DB::DatabaseValues db_rows;
     parameters = {{"Channel","stable"},{"Architecture","amd64"}};
     db_rows = VersionsDatabase.GetMaxRowFromTable("WindowsVersions","Version", parameters);
-    for (const auto &element : db_rows)
-    {
-        std::cout << element.first << " : " << element.second << std::endl;
-    }
     EXPECT_STREQ(db_rows["Version"].c_str(),"0.2");
 }
 
@@ -161,7 +175,7 @@ TEST_F(DatabaseTest, RemoveRow)
     result = database.RemoveRowFromTable(Table, values);
     EXPECT_EQ(0, result);
     
-    values = {{"Number", "1"}, {"Language", "PythonDevelopmentTools"}};
+    values = {{"Language", "PythonDevelopmentTools"}};
     result = database.RemoveRowFromTable(DevelopmentTable, values);
     EXPECT_EQ(0, result);
 }

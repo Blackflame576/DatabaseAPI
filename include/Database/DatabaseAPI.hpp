@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include <filesystem>
 #include <typeinfo>
-#include <map>
 
 namespace DB
 {
@@ -16,8 +15,6 @@ namespace DB
     class Database
     {
     public:
-        
-        int ArraySize;
         sqlite3 *db;
         sqlite3_stmt *statement;
         bool isOpen = false;
@@ -47,25 +44,27 @@ namespace DB
 
         int InsertRowToTable(const std::string &NameTable, DatabaseValues  Fields);
 
+        bool ExistTableInDB(const std::string  &NameTable);
+
         bool ExistRowInTable(const std::string &NameTable,const std::string &NameColumn,const std::string &Value);
 
-        std::string GetValueFromRow(const std::string &NameTable, const std::string &NameColumn, std::unordered_map<std::string,std::string> Parameters);
+        std::string GetValueFromRow(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues>& Parameters);
 
         DatabaseValues GetRowByID(const std::string &NameTable,const int &id);
 
-        std::unordered_map<int, DatabaseValues> GetRowFromTable(const std::string &NameTable, DatabaseValues  Parameters);
+        DatabaseValues GetTwoColumnsFromTable(const std::string  &NameTable, const std::string &FirstColumn, const std::string &SecondColumn,const std::optional<DatabaseValues>& Parameters);
+
+        DatabaseValues GetOneColumnFromTable(const std::string  &NameTable, const std::string  &NameColumn, const std::optional<DatabaseValues>& Parameters);
+
+        std::unordered_map<int, DatabaseValues> GetRowFromTable(const std::string &NameTable, const std::optional<DatabaseValues>& Parameters);
 
         std::unordered_map<int, DatabaseValues> GetAllRowsFromTable(const std::string &NameTable);
 
-        std::unordered_map<std::string,std::string> GetMaxRowFromTable(const std::string &NameTable,const std::string &NameColumn, std::unordered_map<std::string,std::string> Parameters);
+        DatabaseValues GetMaxRowFromTable(const std::string &NameTable,const std::string &NameColumn, const std::optional<DatabaseValues>& Parameters);
 
-        std::string GetMaxValueFromTable(const std::string &NameTable, const std::string &NameColumn, std::unordered_map<std::string,std::string> Parameters);
+        std::string GetMaxValueFromTable(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues>& Parameters);
 
-        int RemoveRowFromTable(const std::string &NameTable,std::unordered_map<std::string,std::string> Parameters);
-
-        int AddApplications(const std::string Tables[]);
-
-        int RemoveApplications(const std::string Tables[]);
+        int RemoveRowFromTable(const std::string &NameTable,const std::optional<DatabaseValues>& Parameters);
         
         int DeleteAllRows(const std::string  &NameTable);
 
