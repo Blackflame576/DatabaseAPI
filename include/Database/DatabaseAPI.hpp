@@ -7,7 +7,6 @@
 #include <unordered_map>
 #include <filesystem>
 #include <typeinfo>
-#include <map>
 
 namespace DB
 {
@@ -16,8 +15,6 @@ namespace DB
     class Database
     {
     public:
-        
-        int ArraySize;
         sqlite3 *db;
         sqlite3_stmt *statement;
         bool isOpen = false;

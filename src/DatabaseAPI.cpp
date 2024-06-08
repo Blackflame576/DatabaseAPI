@@ -516,6 +516,7 @@ std::string DB::Database::GetMaxValueFromTable(const std::string &NameTable, con
 
 int DB::Database::GetArraySize(const std::string &NameTable, const std::string &NameColumn)
 {
+    int ArraySize;
     std::string SQL_QUERY;
     // Create SQL statement
     SQL_QUERY = "SELECT count(" + NameColumn + ") " + " FROM " + NameTable;
