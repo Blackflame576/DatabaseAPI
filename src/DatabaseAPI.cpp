@@ -100,13 +100,19 @@ std::string DB::Database::GetValueFromRow(const std::string &NameTable, const st
 {
     std::string AnswerDB;
     std::string SQL_QUERY;
-    const DatabaseValues values = Parameters.value();
+    DatabaseValues values;
 
     // Create SQL statement
     SQL_QUERY = "SELECT " + NameColumn + " FROM " + NameTable;
-    if (values.size() != 0)
+    if (Parameters.has_value())
     {
+        if (Parameters.value().size() == 0)
+        {
+            throw std::runtime_error("Parameters is empty");
+        
+        }
         SQL_QUERY += " WHERE ";
+        values = Parameters.value();
         for (int i = 1; const auto &element : values)
         {
             SQL_QUERY += element.first + "='" + element.second + "'";
@@ -194,14 +200,20 @@ std::unordered_map<int, DB::DatabaseValues> DB::Database::GetRowFromTable(const 
     int num_columns;
     std::string SQL_QUERY;
     std::string id;
-    const DatabaseValues values = Parameters.value();
+    DatabaseValues values;
     std::unordered_map<int, DB::DatabaseValues> WriteMap;
 
     // Create SQL statement
     SQL_QUERY = "SELECT * FROM " + NameTable;
-    if (values.size() != 0)
+    if (Parameters.has_value())
     {
+        if (Parameters.value().size() == 0)
+        {
+            throw std::runtime_error("Parameters is empty");
+        
+        }
         SQL_QUERY += " WHERE ";
+        values = Parameters.value();
         for (int i = 1; const auto &element : values)
         {
             SQL_QUERY += element.first + "='" + element.second + "'";
@@ -256,14 +268,20 @@ DB::DatabaseValues DB::Database::GetTwoColumnsFromTable(const std::string  &Name
     std::string Key;
     std::string Value;
     std::string SQL_QUERY;
-    const DatabaseValues values = Parameters.value();
+    DatabaseValues values;
     DB::DatabaseValues WriteMap;
     
     // Create SQL statement
     SQL_QUERY = "SELECT " + FirstColumn + ", " + SecondColumn + " FROM " + NameTable;
-    if (values.size() != 0)
+    if (Parameters.has_value())
     {
+        if (Parameters.value().size() == 0)
+        {
+            throw std::runtime_error("Parameters is empty");
+        
+        }
         SQL_QUERY += " WHERE ";
+        values = Parameters.value();
         for (int i = 1; const auto &element : values)
         {
             SQL_QUERY += element.first + "='" + element.second + "'";
@@ -316,13 +334,19 @@ DB::DatabaseValues DB::Database::GetOneColumnFromTable(const std::string  &NameT
     std::string Key;
     std::string Value;
     std::string SQL_QUERY;
-    const DatabaseValues values = Parameters.value();
+    DatabaseValues values;
     
     // Create SQL statement
     SQL_QUERY = "SELECT id," + NameColumn + " FROM " + NameTable;
-    if (values.size() != 0)
+    if (Parameters.has_value())
     {
+        if (Parameters.value().size() == 0)
+        {
+            throw std::runtime_error("Parameters is empty");
+        
+        }
         SQL_QUERY += " WHERE ";
+        values = Parameters.value();
         for (int i = 1; const auto &element : values)
         {
             SQL_QUERY += element.first + "='" + element.second + "'";
@@ -422,14 +446,20 @@ DB::DatabaseValues DB::Database::GetMaxRowFromTable(const std::string &NameTable
     std::string Value;
     std::string SQL_QUERY;
     std::string id;
-    const DatabaseValues values = Parameters.value();
+    DatabaseValues values;
     DB::DatabaseValues WriteMap;
 
     // Create SQL statement
     SQL_QUERY = "SELECT * FROM " + NameTable + " WHERE " + NameColumn + "=(SELECT max(" + NameColumn + ") FROM " + NameTable;
-    if (values.size() != 0)
+    if (Parameters.has_value())
     {
+        if (Parameters.value().size() == 0)
+        {
+            throw std::runtime_error("Parameters is empty");
+        
+        }
         SQL_QUERY += " WHERE ";
+        values = Parameters.value();
         for (int i = 1;const auto &element : values)
         {
             SQL_QUERY += element.first + "='" + element.second + "'";
@@ -472,13 +502,19 @@ std::string DB::Database::GetMaxValueFromTable(const std::string &NameTable, con
 {
     std::string AnswerDB;
     std::string SQL_QUERY;
-    const DatabaseValues values = Parameters.value();
+    DatabaseValues values;
 
     // Create SQL statement
     SQL_QUERY = "SELECT max(" + NameColumn + ") FROM " + NameTable;
-    if (values.size() != 0)
+    if (Parameters.has_value())
     {
+        if (Parameters.value().size() == 0)
+        {
+            throw std::runtime_error("Parameters is empty");
+        
+        }
         SQL_QUERY += " WHERE ";
+        values = Parameters.value();
         for (int i = 1;const auto &element : values)
         {
             SQL_QUERY += element.first + "='" + element.second + "'";

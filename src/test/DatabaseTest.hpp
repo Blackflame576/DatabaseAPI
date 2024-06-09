@@ -43,9 +43,4 @@ protected:
         database.open(&DatabasePath);
         VersionsDatabase.open(&VersionsDBPAth);
     }
-    void TearDown() override 
-    {
-        database.close();
-        VersionsDatabase.close();
-    }
 };

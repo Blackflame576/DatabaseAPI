@@ -55,10 +55,9 @@ TEST_F(DatabaseTest, GetValue)
 
 TEST_F(DatabaseTest, GetTwoColumns)
 {
-    DB::DatabaseValues parameters;
     DB::DatabaseValues db_rows;
     // parameters = {{"Windows", NameApp}};
-    db_rows = database.GetTwoColumnsFromTable(Table, "Name", "Windows", parameters);
+    db_rows = database.GetTwoColumnsFromTable(Table, "Name", "Windows", std::nullopt);
     EXPECT_STREQ(Windows_Command.c_str(), db_rows[NameApp].c_str());
 }
 
@@ -185,5 +184,15 @@ int main(int argc, char **argv)
     std::filesystem::path current_dir = argv[0];
     std::filesystem::current_path(current_dir.parent_path().generic_string());
     ::testing::InitGoogleTest(&argc, argv);
+    std::string DatabasePath = current_dir.parent_path().generic_string() + "/test/DB/AppInstaller.db";
+    std::string VersionsDBPAth =  current_dir.parent_path().generic_string()  +  "/test/DB/Versions.db";
+    if (std::filesystem::exists(DatabasePath))
+        {
+            std::filesystem::remove(DatabasePath);
+        }
+        if (std::filesystem::exists(VersionsDBPAth))
+        {
+            std::filesystem::remove(VersionsDBPAth);
+        }
     return RUN_ALL_TESTS();
 }
