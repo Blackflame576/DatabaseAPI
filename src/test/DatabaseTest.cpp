@@ -64,10 +64,10 @@ TEST_F(DatabaseTest, GetTwoColumns)
 TEST_F(DatabaseTest, GetOneColumn)
 {
     DB::DatabaseValues parameters;
-    std::string result;
+    DB::DatabaseValues db_rows;
     parameters = {{"Name", NameApp}};
-    result = database.GetValueFromRow(Table, "Windows", parameters);
-    EXPECT_STREQ(Windows_Command.c_str(), result.c_str());
+    db_rows = database.GetOneColumnFromTable(Table, "Windows", parameters);
+    EXPECT_STREQ(Windows_Command.c_str(), db_rows[0].c_str());
 }
 
 TEST_F(DatabaseTest, GetMaxValue)
