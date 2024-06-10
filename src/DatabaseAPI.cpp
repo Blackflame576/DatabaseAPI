@@ -331,13 +331,12 @@ DB::DatabaseValues DB::Database::GetOneColumnFromTable(const std::string  &NameT
     int num_columns;
     int RESULT_SQL;
     DB::DatabaseValues WriteMap;
-    std::string Key;
     std::string Value;
     std::string SQL_QUERY;
     DatabaseValues values;
     
     // Create SQL statement
-    SQL_QUERY = "SELECT id," + NameColumn + " FROM " + NameTable;
+    SQL_QUERY = "SELECT " + NameColumn + " FROM " + NameTable;
     if (Parameters.has_value())
     {
         if (Parameters.value().size() == 0)
@@ -376,11 +375,10 @@ DB::DatabaseValues DB::Database::GetOneColumnFromTable(const std::string  &NameT
     num_columns = sqlite3_column_count(statement);
     while (RESULT_SQL == SQLITE_ROW) {
         for (int i = 0; i < num_columns; i++) {
-            Key = (const char *)sqlite3_column_text(statement, 0);
             Value = (const char *)sqlite3_column_text(statement, 1);
-            if (Key != "Empty" && Value != "Empty")
+            if (Value != "Empty")
             {
-                WriteMap.insert(std::pair<std::string, std::string>(Key, Value));
+                WriteMap.insert(std::pair<std::string, std::string>(std::to_string(i), Value));
             }
         }
         RESULT_SQL = sqlite3_step(statement);
