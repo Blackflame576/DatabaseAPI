@@ -9,6 +9,7 @@ class DatabaseTest : public ::testing::Test
 {
 protected:
     std::string ProjectFolder;
+    std::string DatabaseFolder;
     std::string DatabasePath;
     std::string VersionsDBPAth;
     DB::Database database;
@@ -23,8 +24,9 @@ protected:
     void SetUp() override
     {
         ProjectFolder = std::filesystem::current_path().generic_string();
-        DatabasePath = ProjectFolder + "/test/DB/AppInstaller.db";
-        VersionsDBPAth =  ProjectFolder  +  "/test/DB/Versions.db";
+        DatabaseFolder =  ProjectFolder + "/test/DB";
+        DatabasePath = DatabaseFolder + "/AppInstaller.db";
+        VersionsDBPAth =  DatabaseFolder + "/Versions.db";
         NameApp = "TestApp";
         Windows_Command = "Test_Windows_Command";
         macOS_Command = "Test_macOS_Command";
@@ -33,6 +35,7 @@ protected:
         DevelopmentTable = "DevelopmentPacks";
         if (!std::filesystem::exists(DatabasePath))
         {
+            if (!std::filesystem::exists(DatabaseFolder)) std::filesystem::create_directories(DatabaseFolder);
             std::ofstream file(DatabasePath);
             file << "";
             file.close();
