@@ -326,11 +326,11 @@ DB::DatabaseValues DB::Database::GetTwoColumnsFromTable(const std::string  &Name
     return WriteMap;
 }
 
-DB::DatabaseValues DB::Database::GetOneColumnFromTable(const std::string  &NameTable, const std::string  &NameColumn, const std::optional<DatabaseValues>& Parameters)
+std::unordered_map<int,std::string> DB::Database::GetOneColumnFromTable(const std::string  &NameTable, const std::string  &NameColumn, const std::optional<DatabaseValues>& Parameters)
 {
     int num_columns;
     int RESULT_SQL;
-    DB::DatabaseValues WriteMap;
+    std::unordered_map<int,std::string>  WriteMap;
     std::string Value;
     std::string SQL_QUERY;
     DatabaseValues values;
@@ -342,7 +342,6 @@ DB::DatabaseValues DB::Database::GetOneColumnFromTable(const std::string  &NameT
         if (Parameters.value().size() == 0)
         {
             throw std::runtime_error("Parameters is empty");
-        
         }
         SQL_QUERY += " WHERE ";
         values = Parameters.value();
@@ -375,17 +374,17 @@ DB::DatabaseValues DB::Database::GetOneColumnFromTable(const std::string  &NameT
     num_columns = sqlite3_column_count(statement);
     while (RESULT_SQL == SQLITE_ROW) {
         for (int i = 0; i < num_columns; i++) {
-            Value = (const char *)sqlite3_column_text(statement, 1);
+            Value = (const char *)sqlite3_column_text(statement, 0);
+            std::cout << Value << std::endl;
             if (Value != "Empty")
             {
-                WriteMap.insert(std::pair<std::string, std::string>(std::to_string(i), Value));
+                WriteMap.insert(std::pair<int, std::string>(i, Value));
             }
         }
         RESULT_SQL = sqlite3_step(statement);
     }
     // Free the statement when done.
     sqlite3_finalize(statement);
-    // return Names,Commands;
     return WriteMap;
 }
 
@@ -492,7 +491,6 @@ DB::DatabaseValues DB::Database::GetMaxRowFromTable(const std::string &NameTable
     }
     // Free the statement when done.
     sqlite3_finalize(statement);
-    // return Names,Commands;
     return WriteMap;
 }
 

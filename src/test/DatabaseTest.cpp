@@ -64,9 +64,13 @@ TEST_F(DatabaseTest, GetTwoColumns)
 TEST_F(DatabaseTest, GetOneColumn)
 {
     DB::DatabaseValues parameters;
-    DB::DatabaseValues db_rows;
+    std::unordered_map<int,std::string>  db_rows;
     parameters = {{"Name", NameApp}};
     db_rows = database.GetOneColumnFromTable(Table, "Windows", parameters);
+    for (const auto &element : db_rows)
+    {
+        std::cout << element.first << " : " << element.second << std::endl;
+    }
     EXPECT_STREQ(Windows_Command.c_str(), db_rows[0].c_str());
 }
 
