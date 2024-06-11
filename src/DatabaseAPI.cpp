@@ -375,7 +375,6 @@ std::unordered_map<int,std::string> DB::Database::GetOneColumnFromTable(const st
     while (RESULT_SQL == SQLITE_ROW) {
         for (int i = 0; i < num_columns; i++) {
             Value = (const char *)sqlite3_column_text(statement, 0);
-            std::cout << Value << std::endl;
             if (Value != "Empty")
             {
                 WriteMap.insert(std::pair<int, std::string>(i, Value));
