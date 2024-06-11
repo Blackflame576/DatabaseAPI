@@ -64,7 +64,7 @@ TEST_F(DatabaseTest, GetTwoColumns)
 TEST_F(DatabaseTest, GetOneColumn)
 {
     DB::DatabaseValues parameters;
-    std::unordered_map<int,std::string>  db_rows;
+    DB::EnumColDatabaseValues  db_rows;
     parameters = {{"Name", NameApp}};
     db_rows = database.GetOneColumnFromTable(Table, "Windows", parameters);
     for (const auto &element : db_rows)
@@ -98,7 +98,7 @@ TEST_F(DatabaseTest, GetMaxRow)
 
 TEST_F(DatabaseTest, GetRow)
 {
-    std::unordered_map<int, DB::DatabaseValues> db_rows;
+    DB::EnumDatabaseValues db_rows;
     DB::DatabaseValues parameters;
     parameters  = {{"Name", NameApp}};
     db_rows = database.GetRowFromTable(Table, parameters);
@@ -116,8 +116,7 @@ TEST_F(DatabaseTest, GetRowByID)
 
 TEST_F(DatabaseTest, GetAllRows)
 {
-    typedef DB::DatabaseValues db_values;
-    std::unordered_map<int,db_values> db_rows;
+    DB::EnumDatabaseValues db_rows;
     bool expression;
     db_rows = database.GetAllRowsFromTable(Table);
     expression = Windows_Command == db_rows[0]["Windows"];
@@ -126,8 +125,7 @@ TEST_F(DatabaseTest, GetAllRows)
 
 TEST_F(DatabaseTest, ExecuteQuery)
 {
-    typedef DB::DatabaseValues db_values;
-    std::unordered_map<int,db_values> db_rows;
+    DB::EnumDatabaseValues db_rows;
     bool expression;
     db_rows = database.ExecuteQuery("SELECT * FROM " + Table);
     expression = Windows_Command == db_rows[0]["Windows"];
