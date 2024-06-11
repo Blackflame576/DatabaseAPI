@@ -11,7 +11,9 @@
 namespace DB
 {
     typedef std::unordered_map<std::string, std::string> DatabaseValues;
-
+    typedef std::unordered_map<int, DatabaseValues> EnumDatabaseValues;
+    typedef std::unordered_map<int, std::string> EnumColDatabaseValues; // Enumerated columns
+    
     class Database
     {
     public:
