@@ -52,7 +52,7 @@ int DB::Database::InsertRowToTable(const std::string &NameTable, DB::DatabaseVal
     return 0;
 }
 
-bool DB::Database::ExistTableInDB(const std::string  &NameTable)
+bool DB::Database::ExistTableInDB(const std::string &NameTable)
 {
     std::string SQL_QUERY;
     int countTables;
@@ -96,7 +96,7 @@ bool DB::Database::ExistRowInTable(const std::string &NameTable, const std::stri
     return false;
 }
 
-std::string DB::Database::GetValueFromRow(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues>& Parameters)
+std::string DB::Database::GetValueFromRow(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues> &Parameters)
 {
     std::string AnswerDB;
     std::string SQL_QUERY;
@@ -109,7 +109,6 @@ std::string DB::Database::GetValueFromRow(const std::string &NameTable, const st
         if (Parameters.value().size() == 0)
         {
             throw std::runtime_error("Parameters is empty");
-        
         }
         SQL_QUERY += " WHERE ";
         values = Parameters.value();
@@ -148,7 +147,7 @@ std::string DB::Database::GetValueFromRow(const std::string &NameTable, const st
     return AnswerDB;
 }
 
-DB::DatabaseValues DB::Database::GetRowByID(const std::string &NameTable,const int &id)
+DB::DatabaseValues DB::Database::GetRowByID(const std::string &NameTable, const int &id)
 {
     int num_columns;
     int RESULT_SQL;
@@ -156,9 +155,9 @@ DB::DatabaseValues DB::Database::GetRowByID(const std::string &NameTable,const i
     std::string Value;
     std::string SQL_QUERY;
     DB::DatabaseValues WriteMap;
-    
+
     // Create SQL statement
-    SQL_QUERY = "SELECT * FROM " + NameTable + " WHERE id='"  + std::to_string(id)  + "'";
+    SQL_QUERY = "SELECT * FROM " + NameTable + " WHERE id='" + std::to_string(id) + "'";
     // Execute SQL statement
     RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), SQL_QUERY.length(), &statement, nullptr);
     // if result of execute sql statement != SQLITE_OK, that send error
@@ -169,16 +168,19 @@ DB::DatabaseValues DB::Database::GetRowByID(const std::string &NameTable,const i
     }
     // Execute the SQL statement
     RESULT_SQL = sqlite3_step(statement);
-    if (RESULT_SQL!= SQLITE_ROW) {
+    if (RESULT_SQL != SQLITE_ROW)
+    {
         throw std::runtime_error("No rows returned");
     }
 
     // Fetch all rows from the result set
     num_columns = sqlite3_column_count(statement);
-    while (RESULT_SQL == SQLITE_ROW) {
-        for (int i = 0; i < num_columns; i++) {
+    while (RESULT_SQL == SQLITE_ROW)
+    {
+        for (int i = 0; i < num_columns; i++)
+        {
             Key = sqlite3_column_name(statement, i);
-            Value = reinterpret_cast<const char*>(sqlite3_column_text(statement, i));
+            Value = reinterpret_cast<const char *>(sqlite3_column_text(statement, i));
             if (Key != "Empty" && Value != "Empty")
             {
                 WriteMap.insert(std::pair<std::string, std::string>(Key, Value));
@@ -192,8 +194,7 @@ DB::DatabaseValues DB::Database::GetRowByID(const std::string &NameTable,const i
     return WriteMap;
 }
 
-
-std::unordered_map<int, DB::DatabaseValues> DB::Database::GetRowFromTable(const std::string &NameTable, const std::optional<DatabaseValues>& Parameters)
+std::unordered_map<int, DB::DatabaseValues> DB::Database::GetRowFromTable(const std::string &NameTable, const std::optional<DatabaseValues> &Parameters)
 {
     int n = 0;
     int RESULT_SQL;
@@ -210,7 +211,6 @@ std::unordered_map<int, DB::DatabaseValues> DB::Database::GetRowFromTable(const 
         if (Parameters.value().size() == 0)
         {
             throw std::runtime_error("Parameters is empty");
-        
         }
         SQL_QUERY += " WHERE ";
         values = Parameters.value();
@@ -261,7 +261,7 @@ std::unordered_map<int, DB::DatabaseValues> DB::Database::GetRowFromTable(const 
     return WriteMap;
 }
 
-DB::DatabaseValues DB::Database::GetTwoColumnsFromTable(const std::string  &NameTable, const std::string &FirstColumn, const std::string &SecondColumn,const std::optional<DatabaseValues>& Parameters)
+DB::DatabaseValues DB::Database::GetTwoColumnsFromTable(const std::string &NameTable, const std::string &FirstColumn, const std::string &SecondColumn, const std::optional<DatabaseValues> &Parameters)
 {
     int num_columns;
     int RESULT_SQL;
@@ -270,7 +270,7 @@ DB::DatabaseValues DB::Database::GetTwoColumnsFromTable(const std::string  &Name
     std::string SQL_QUERY;
     DatabaseValues values;
     DB::DatabaseValues WriteMap;
-    
+
     // Create SQL statement
     SQL_QUERY = "SELECT " + FirstColumn + ", " + SecondColumn + " FROM " + NameTable;
     if (Parameters.has_value())
@@ -278,7 +278,6 @@ DB::DatabaseValues DB::Database::GetTwoColumnsFromTable(const std::string  &Name
         if (Parameters.value().size() == 0)
         {
             throw std::runtime_error("Parameters is empty");
-        
         }
         SQL_QUERY += " WHERE ";
         values = Parameters.value();
@@ -303,14 +302,17 @@ DB::DatabaseValues DB::Database::GetTwoColumnsFromTable(const std::string  &Name
     }
     // Execute the SQL statement
     RESULT_SQL = sqlite3_step(statement);
-    if (RESULT_SQL!= SQLITE_ROW) {
+    if (RESULT_SQL != SQLITE_ROW)
+    {
         throw std::runtime_error("No rows returned");
     }
 
     // Fetch all rows from the result set
     num_columns = sqlite3_column_count(statement);
-    while (RESULT_SQL == SQLITE_ROW) {
-        for (int i = 0; i < num_columns; i++) {
+    while (RESULT_SQL == SQLITE_ROW)
+    {
+        for (int i = 0; i < num_columns; i++)
+        {
             Key = (const char *)sqlite3_column_text(statement, 0);
             Value = (const char *)sqlite3_column_text(statement, 1);
             if (Key != "Empty" && Value != "Empty")
@@ -326,15 +328,15 @@ DB::DatabaseValues DB::Database::GetTwoColumnsFromTable(const std::string  &Name
     return WriteMap;
 }
 
-std::unordered_map<int,std::string> DB::Database::GetOneColumnFromTable(const std::string  &NameTable, const std::string  &NameColumn, const std::optional<DatabaseValues>& Parameters)
+std::unordered_map<int, std::string> DB::Database::GetOneColumnFromTable(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues> &Parameters)
 {
-    int num_columns;
+    // int num_columns;
     int RESULT_SQL;
-    std::unordered_map<int,std::string>  WriteMap;
+    std::unordered_map<int, std::string> WriteMap;
     std::string Value;
     std::string SQL_QUERY;
     DatabaseValues values;
-    
+
     // Create SQL statement
     SQL_QUERY = "SELECT " + NameColumn + " FROM " + NameTable;
     if (Parameters.has_value())
@@ -366,25 +368,93 @@ std::unordered_map<int,std::string> DB::Database::GetOneColumnFromTable(const st
     }
     // Execute the SQL statement
     RESULT_SQL = sqlite3_step(statement);
-    if (RESULT_SQL!= SQLITE_ROW) {
+    if (RESULT_SQL != SQLITE_ROW)
+    {
         throw std::runtime_error("No rows returned");
     }
 
     // Fetch all rows from the result set
-    num_columns = sqlite3_column_count(statement);
-    while (RESULT_SQL == SQLITE_ROW) {
-        for (int i = 0; i < num_columns; i++) {
-            Value = (const char *)sqlite3_column_text(statement, i);
-            if (Value != "Empty")
-            {
-                WriteMap.insert(std::pair<int, std::string>(i, Value));
-            }
+    // num_columns = sqlite3_column_count(statement);
+    int i = 0;
+    while (RESULT_SQL == SQLITE_ROW)
+    {
+        // for (int i = 0; i < num_columns; i++) {
+        Value = (const char *)sqlite3_column_text(statement, 0);
+        if (Value != "Empty")
+        {
+            WriteMap.insert(std::pair<int, std::string>(i, Value));
         }
+        // }
         RESULT_SQL = sqlite3_step(statement);
+        i++;
     }
     // Free the statement when done.
     sqlite3_finalize(statement);
     return WriteMap;
+}
+
+std::unique_ptr<std::string[]> DB::Database::GetArrayOneColumnFromTable(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues> &Parameters)
+{
+    // int num_columns;
+    int RESULT_SQL;
+
+    std::string Value;
+    std::string SQL_QUERY;
+    DatabaseValues values;
+    std::unique_ptr<std::string[]> OutputArray(new std::string[GetArraySize(NameTable, NameColumn)]);
+
+    // Create SQL statement
+    SQL_QUERY = "SELECT " + NameColumn + " FROM " + NameTable;
+    if (Parameters.has_value())
+    {
+        if (Parameters.value().size() == 0)
+        {
+            throw std::runtime_error("Parameters is empty");
+        }
+        SQL_QUERY += " WHERE ";
+        values = Parameters.value();
+        for (int i = 1; const auto &element : values)
+        {
+            SQL_QUERY += element.first + "='" + element.second + "'";
+            if (i != values.size())
+            {
+                SQL_QUERY += " AND ";
+            }
+            i++;
+        }
+    }
+    SQL_QUERY += ";";
+    // Execute SQL statement
+    RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), SQL_QUERY.length(), &statement, nullptr);
+    // if result of execute sql statement != SQLITE_OK, that send error
+    if (RESULT_SQL != SQLITE_OK)
+    {
+        std::string errorMessage = sqlite3_errmsg(db);
+        throw std::runtime_error("Error in execution SELECT * FROM command: " + errorMessage);
+    }
+    // Execute the SQL statement
+    RESULT_SQL = sqlite3_step(statement);
+    if (RESULT_SQL != SQLITE_ROW)
+    {
+        throw std::runtime_error("No rows returned");
+    }
+
+    // Fetch all rows from the result set
+    // num_columns = sqlite3_column_count(statement);
+    int i = 0;
+    while (RESULT_SQL == SQLITE_ROW)
+    {
+        Value = (const char *)sqlite3_column_text(statement, 0);
+        if (Value != "Empty")
+        {
+            OutputArray[i] = Value;
+        }
+        RESULT_SQL = sqlite3_step(statement);
+        i++;
+    }
+    // Free the statement when done.
+    sqlite3_finalize(statement);
+    return OutputArray;
 }
 
 std::unordered_map<int, DB::DatabaseValues> DB::Database::GetAllRowsFromTable(const std::string &NameTable)
@@ -433,7 +503,7 @@ std::unordered_map<int, DB::DatabaseValues> DB::Database::GetAllRowsFromTable(co
     return WriteMap;
 }
 
-DB::DatabaseValues DB::Database::GetMaxRowFromTable(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues>& Parameters)
+DB::DatabaseValues DB::Database::GetMaxRowFromTable(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues> &Parameters)
 {
     int num_columns;
     int RESULT_SQL;
@@ -452,11 +522,10 @@ DB::DatabaseValues DB::Database::GetMaxRowFromTable(const std::string &NameTable
         if (Parameters.value().size() == 0)
         {
             throw std::runtime_error("Parameters is empty");
-        
         }
         SQL_QUERY += " WHERE ";
         values = Parameters.value();
-        for (int i = 1;const auto &element : values)
+        for (int i = 1; const auto &element : values)
         {
             SQL_QUERY += element.first + "='" + element.second + "'";
             if (i != values.size())
@@ -493,7 +562,7 @@ DB::DatabaseValues DB::Database::GetMaxRowFromTable(const std::string &NameTable
     return WriteMap;
 }
 
-std::string DB::Database::GetMaxValueFromTable(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues>& Parameters)
+std::string DB::Database::GetMaxValueFromTable(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues> &Parameters)
 {
     std::string AnswerDB;
     std::string SQL_QUERY;
@@ -506,11 +575,10 @@ std::string DB::Database::GetMaxValueFromTable(const std::string &NameTable, con
         if (Parameters.value().size() == 0)
         {
             throw std::runtime_error("Parameters is empty");
-        
         }
         SQL_QUERY += " WHERE ";
         values = Parameters.value();
-        for (int i = 1;const auto &element : values)
+        for (int i = 1; const auto &element : values)
         {
             SQL_QUERY += element.first + "='" + element.second + "'";
             if (i != values.size())
@@ -571,7 +639,7 @@ int DB::Database::GetArraySize(const std::string &NameTable, const std::string &
     return ArraySize;
 }
 
-int DB::Database::RemoveRowFromTable(const std::string &NameTable, const std::optional<DatabaseValues>& Parameters)
+int DB::Database::RemoveRowFromTable(const std::string &NameTable, const std::optional<DatabaseValues> &Parameters)
 {
 
     std::string SQL_QUERY;
@@ -581,7 +649,7 @@ int DB::Database::RemoveRowFromTable(const std::string &NameTable, const std::op
 
     if (values.size() != 0)
     {
-        for (int i = 1;const auto &element : values)
+        for (int i = 1; const auto &element : values)
         {
             SQL_QUERY += element.first + "='" + element.second + "'";
             if (i != values.size())

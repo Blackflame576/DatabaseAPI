@@ -7,12 +7,14 @@
 #include <unordered_map>
 #include <filesystem>
 #include <typeinfo>
+#include <memory>
 
 namespace DB
 {
     typedef std::unordered_map<std::string, std::string> DatabaseValues;
     typedef std::unordered_map<int, DatabaseValues> EnumDatabaseValues;
     typedef std::unordered_map<int, std::string> EnumColDatabaseValues; // Enumerated columns
+    typedef std::unique_ptr<std::string[]> ArrayDatabaseValues;
     
     class Database
     {
@@ -57,6 +59,8 @@ namespace DB
         DatabaseValues GetTwoColumnsFromTable(const std::string  &NameTable, const std::string &FirstColumn, const std::string &SecondColumn,const std::optional<DatabaseValues>& Parameters);
 
         std::unordered_map<int,std::string>  GetOneColumnFromTable(const std::string  &NameTable, const std::string  &NameColumn, const std::optional<DatabaseValues>& Parameters);
+
+        std::unique_ptr<std::string[]>  GetArrayOneColumnFromTable(const std::string  &NameTable, const std::string  &NameColumn, const std::optional<DatabaseValues>& Parameters);
 
         std::unordered_map<int, DatabaseValues> GetRowFromTable(const std::string &NameTable, const std::optional<DatabaseValues>& Parameters);
 
