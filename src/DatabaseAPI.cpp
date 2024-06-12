@@ -425,7 +425,7 @@ std::unique_ptr<std::string[]> DB::Database::GetArrayOneColumnFromTable(const st
     }
     SQL_QUERY += ";";
     // Execute SQL statement
-    RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), SQL_QUERY.length(), &statement, nullptr);
+    RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), -1, &statement, nullptr);
     // if result of execute sql statement != SQLITE_OK, that send error
     if (RESULT_SQL != SQLITE_OK)
     {
@@ -444,7 +444,7 @@ std::unique_ptr<std::string[]> DB::Database::GetArrayOneColumnFromTable(const st
     int i = 0;
     while (RESULT_SQL == SQLITE_ROW)
     {
-        Value = (const char *)sqlite3_column_text(statement, i);
+        Value = (const char *)sqlite3_column_text(statement, 0);
         if (Value != "Empty")
         {
             OutputArray[i] = Value;
