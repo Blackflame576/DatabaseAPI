@@ -73,10 +73,11 @@ TEST_F(DatabaseTest, GetOneColumn)
 TEST_F(DatabaseTest, GetArrayOneColumn)
 {
     DB::DatabaseValues parameters;
-    DB::ArrayDatabaseValues  db_rows;
+    DB::ArrayDatabaseValues db_rows;
     parameters = {{"Name", NameApp}};
     db_rows = database.GetArrayOneColumnFromTable(Table, "Windows", parameters);
     EXPECT_STREQ(Windows_Command.c_str(), db_rows[0].c_str());
+    delete[] db_rows;
 }
 
 TEST_F(DatabaseTest, GetMaxValue)

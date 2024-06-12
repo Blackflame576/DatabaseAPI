@@ -386,7 +386,7 @@ std::unordered_map<int, std::string> DB::Database::GetOneColumnFromTable(const s
     return WriteMap;
 }
 
-std::unique_ptr<std::string[]> DB::Database::GetArrayOneColumnFromTable(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues> &Parameters)
+std::string* DB::Database::GetArrayOneColumnFromTable(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues> &Parameters)
 {
     // int num_columns;
     int RESULT_SQL;
@@ -394,7 +394,7 @@ std::unique_ptr<std::string[]> DB::Database::GetArrayOneColumnFromTable(const st
     std::string Value;
     std::string SQL_QUERY;
     DatabaseValues values;
-    std::unique_ptr<std::string[]> OutputArray(new std::string[GetArraySize(NameTable, NameColumn)]);
+    std::string *OutputArray = new std::string[GetArraySize(NameTable, NameColumn)];
 
     // Create SQL statement
     SQL_QUERY = "SELECT " + NameColumn + " FROM " + NameTable;
@@ -440,9 +440,6 @@ std::unique_ptr<std::string[]> DB::Database::GetArrayOneColumnFromTable(const st
     }
     // Free the statement when done.
     sqlite3_finalize(statement);
-    for (int i = 0; i < GetArraySize(NameTable, NameColumn); ++i) {
-        std::cout << OutputArray[i] << std::endl;
-    }
     return OutputArray;
 }
 
