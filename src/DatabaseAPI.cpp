@@ -328,7 +328,7 @@ DB::DatabaseValues DB::Database::GetTwoColumnsFromTable(const std::string &NameT
     return WriteMap;
 }
 
-std::unordered_map<int, std::string> DB::Database::GetOneColumnFromTable(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues> &Parameters)
+DB::EnumColDatabaseValues DB::Database::GetOneColumnFromTable(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues> &Parameters)
 {
     // int num_columns;
     int RESULT_SQL;
@@ -386,7 +386,7 @@ std::unordered_map<int, std::string> DB::Database::GetOneColumnFromTable(const s
     return WriteMap;
 }
 
-std::string* DB::Database::GetArrayOneColumnFromTable(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues> &Parameters)
+std::unique_ptr<std::string[]> DB::Database::GetArrayOneColumnFromTable(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues> &Parameters)
 {
     // int num_columns;
     int RESULT_SQL;
@@ -394,7 +394,7 @@ std::string* DB::Database::GetArrayOneColumnFromTable(const std::string &NameTab
     std::string Value;
     std::string SQL_QUERY;
     DatabaseValues values;
-    std::string *OutputArray = new std::string[GetArraySize(NameTable, NameColumn)];
+    std::unique_ptr<std::string[]> OutputArray(new std::string[GetArraySize(NameTable, NameColumn)]);
 
     // Create SQL statement
     SQL_QUERY = "SELECT " + NameColumn + " FROM " + NameTable;

@@ -6,13 +6,15 @@
 #include <sqlite3/sqlite3.h>
 #include <unordered_map>
 #include <filesystem>
+#include <typeinfo>
+#include <memory>
 
 namespace DB
 {
     typedef std::unordered_map<std::string, std::string> DatabaseValues;
     typedef std::unordered_map<int, DatabaseValues> EnumDatabaseValues;
     typedef std::unordered_map<int, std::string> EnumColDatabaseValues; // Enumerated columns
-    typedef std::string *ArrayDatabaseValues;
+    typedef std::unique_ptr<std::string[]> ArrayDatabaseValues;
     
     class Database
     {
@@ -58,7 +60,7 @@ namespace DB
 
         EnumColDatabaseValues  GetOneColumnFromTable(const std::string  &NameTable, const std::string  &NameColumn, const std::optional<DatabaseValues>& Parameters);
 
-        std::string* GetArrayOneColumnFromTable(const std::string  &NameTable, const std::string  &NameColumn, const std::optional<DatabaseValues>& Parameters);
+        std::unique_ptr<std::string[]>  GetArrayOneColumnFromTable(const std::string  &NameTable, const std::string  &NameColumn, const std::optional<DatabaseValues>& Parameters);
 
         std::unordered_map<int, DatabaseValues> GetRowFromTable(const std::string &NameTable, const std::optional<DatabaseValues>& Parameters);
 
@@ -90,9 +92,8 @@ namespace DB
             }
             return new_sentence;
         }
-
-    private:
         int GetArraySize(const std::string &NameTable,const std::string &NameColumn);
+    private:
 
         static int callback(void *data, int argc, char **argv, char **azColName)
         {
