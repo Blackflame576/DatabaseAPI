@@ -366,17 +366,11 @@ std::unordered_map<int, std::string> DB::Database::GetOneColumnFromTable(const s
         std::string errorMessage = sqlite3_errmsg(db);
         throw std::runtime_error("Error in execution SELECT * FROM command: " + errorMessage);
     }
-    // Execute the SQL statement
-    RESULT_SQL = sqlite3_step(statement);
-    if (RESULT_SQL != SQLITE_ROW)
-    {
-        throw std::runtime_error("No rows returned");
-    }
 
     // Fetch all rows from the result set
     // num_columns = sqlite3_column_count(statement);
     int i = 0;
-    while (RESULT_SQL == SQLITE_ROW)
+    while (sqlite3_step(statement) == SQLITE_ROW)
     {
         // for (int i = 0; i < num_columns; i++) {
         Value = (const char *)sqlite3_column_text(statement, 0);
@@ -385,7 +379,6 @@ std::unordered_map<int, std::string> DB::Database::GetOneColumnFromTable(const s
             WriteMap.insert(std::pair<int, std::string>(i, Value));
         }
         // }
-        RESULT_SQL = sqlite3_step(statement);
         i++;
     }
     // Free the statement when done.
@@ -425,31 +418,25 @@ std::unique_ptr<std::string[]> DB::Database::GetArrayOneColumnFromTable(const st
     }
     SQL_QUERY += ";";
     // Execute SQL statement
-    RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), -1, &statement, nullptr);
+    RESULT_SQL = sqlite3_prepare_v2(db, SQL_QUERY.c_str(), SQL_QUERY.length(), &statement, nullptr);
     // if result of execute sql statement != SQLITE_OK, that send error
     if (RESULT_SQL != SQLITE_OK)
     {
         std::string errorMessage = sqlite3_errmsg(db);
         throw std::runtime_error("Error in execution SELECT * FROM command: " + errorMessage);
     }
-    // Execute the SQL statement
-    RESULT_SQL = sqlite3_step(statement);
-    if (RESULT_SQL != SQLITE_ROW)
-    {
-        throw std::runtime_error("No rows returned");
-    }
 
     // Fetch all rows from the result set
     // num_columns = sqlite3_column_count(statement);
     int i = 0;
-    while (RESULT_SQL == SQLITE_ROW)
+    while (sqlite3_step(statement) == SQLITE_ROW)
     {
         Value = (const char *)sqlite3_column_text(statement, 0);
+        std::cout << sqlite3_column_text(statement, 0) << std::endl;
         if (Value != "Empty")
         {
             OutputArray[i] = Value;
         }
-        RESULT_SQL = sqlite3_step(statement);
         i++;
     }
     // Free the statement when done.
