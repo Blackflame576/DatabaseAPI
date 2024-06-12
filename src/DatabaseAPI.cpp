@@ -432,7 +432,6 @@ std::unique_ptr<std::string[]> DB::Database::GetArrayOneColumnFromTable(const st
     while (sqlite3_step(statement) == SQLITE_ROW)
     {
         Value = (const char *)sqlite3_column_text(statement, 0);
-        std::cout << sqlite3_column_text(statement, 0) << std::endl;
         if (Value != "Empty")
         {
             OutputArray[i] = Value;
@@ -441,6 +440,9 @@ std::unique_ptr<std::string[]> DB::Database::GetArrayOneColumnFromTable(const st
     }
     // Free the statement when done.
     sqlite3_finalize(statement);
+    for (int i = 0; i < GetArraySize(NameTable, NameColumn); ++i) {
+        std::cout << OutputArray[i] << std::endl;
+    }
     return OutputArray;
 }
 
