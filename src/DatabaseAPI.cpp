@@ -444,7 +444,7 @@ std::unique_ptr<std::string[]> DB::Database::GetArrayOneColumnFromTable(const st
     int i = 0;
     while (RESULT_SQL == SQLITE_ROW)
     {
-        Value = (const char *)sqlite3_column_text(statement, 0);
+        Value = (const char *)sqlite3_column_text(statement, i);
         if (Value != "Empty")
         {
             OutputArray[i] = Value;
