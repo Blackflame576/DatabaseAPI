@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <typeinfo>
 #include <memory>
+#include <optional>
 
 namespace DB
 {
