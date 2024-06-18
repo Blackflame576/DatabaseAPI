@@ -9,6 +9,8 @@
 #include <typeinfo>
 #include <memory>
 #include <optional>
+#define FMT_HEADER_ONLY
+#include <fmt/format.h>
 
 namespace DB
 {
@@ -53,19 +55,19 @@ namespace DB
 
         bool ExistRowInTable(const std::string &NameTable,const std::string &NameColumn,const std::string &Value);
 
-        std::string GetValueFromRow(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues>& Parameters);
+        std::string GetValueFromRow(const std::string &NameTable, const std::string &NameColumn, const std::optional<DatabaseValues>& Parameters, const std::optional<DatabaseValues> &Exceptions);
 
         DatabaseValues GetRowByID(const std::string &NameTable,const int &id);
 
-        DatabaseValues GetTwoColumnsFromTable(const std::string  &NameTable, const std::string &FirstColumn, const std::string &SecondColumn,const std::optional<DatabaseValues>& Parameters);
+        DatabaseValues GetTwoColumnsFromTable(const std::string  &NameTable, const std::string &FirstColumn, const std::string &SecondColumn,const std::optional<DatabaseValues>& Parameters, const std::optional<DatabaseValues> &Exceptions);
 
-        EnumColDatabaseValues  GetOneColumnFromTable(const std::string  &NameTable, const std::string  &NameColumn, const std::optional<DatabaseValues>& Parameters);
+        EnumColDatabaseValues  GetOneColumnFromTable(const std::string  &NameTable, const std::string  &NameColumn, const std::optional<DatabaseValues>& Parameters, const std::optional<DatabaseValues> &Exceptions);
 
-        std::unique_ptr<std::string[]>  GetArrayOneColumnFromTable(const std::string  &NameTable, const std::string  &NameColumn, const std::optional<DatabaseValues>& Parameters);
+        ArrayDatabaseValues  GetArrayOneColumnFromTable(const std::string  &NameTable, const std::string  &NameColumn, const std::optional<DatabaseValues>& Parameters, const std::optional<DatabaseValues> &Exceptions);
 
-        std::unordered_map<int, DatabaseValues> GetRowFromTable(const std::string &NameTable, const std::optional<DatabaseValues>& Parameters);
+        EnumDatabaseValues GetRowFromTable(const std::string &NameTable, const std::optional<DatabaseValues>& Parameters, const std::optional<DatabaseValues> &Exceptions);
 
-        std::unordered_map<int, DatabaseValues> GetAllRowsFromTable(const std::string &NameTable);
+        EnumDatabaseValues GetAllRowsFromTable(const std::string &NameTable);
 
         DatabaseValues GetMaxRowFromTable(const std::string &NameTable,const std::string &NameColumn, const std::optional<DatabaseValues>& Parameters);
 
@@ -77,7 +79,7 @@ namespace DB
 
         int RunQuery(const std::string  &SQL_QUERY);
 
-        std::unordered_map<int, DatabaseValues> ExecuteQuery(const std::string  &SQL_QUERY);
+        EnumDatabaseValues ExecuteQuery(const std::string  &SQL_QUERY);
 
         int UpdateRowInTable(const std::string &NameTable, DatabaseValues Values, DatabaseValues Parameters);
         // Method of make string to upper
@@ -94,7 +96,13 @@ namespace DB
             return new_sentence;
         }
         int GetArraySize(const std::string &NameTable,const std::string &NameColumn);
-    private:
+    protected:
+
+        int countSubstr(const std::string str, const std::string substr);
+
+        void AddParameters(std::string &SQL_QUERY, const DB::DatabaseValues &Parameters,int maxNum_WHERE);
+
+        void AddExceptions(std::string &SQL_QUERY, const DatabaseValues &Exceptions,int maxNum_WHERE);
 
         static int callback(void *data, int argc, char **argv, char **azColName)
         {
